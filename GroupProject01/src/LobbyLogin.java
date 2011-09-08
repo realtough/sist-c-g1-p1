@@ -1,4 +1,3 @@
-//로그인 판넬
 import javax.swing.*;
 
 public class LobbyLogin extends JPanel{

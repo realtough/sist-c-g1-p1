@@ -1,7 +1,8 @@
-import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.*;
+
+
 
 //로비화면의 실제 폼과 기능 구현
 public class LobbyMain extends JFrame {

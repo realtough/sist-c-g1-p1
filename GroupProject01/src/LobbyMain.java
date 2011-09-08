@@ -1,8 +1,7 @@
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 //로비화면의 실제 폼과 기능 구현
 public class LobbyMain extends JFrame {
@@ -11,11 +10,23 @@ public class LobbyMain extends JFrame {
 	JPanel jpChat = new JPanel();
 	JPanel jpGameList = new JPanel();
 	JPanel jpPlayerList = new JPanel();
-
+	
 	Toolkit tkMyTool = Toolkit.getDefaultToolkit();
 
 	public LobbyMain() {
 		super("Mini Game Paradise");
+		
+		//Test//
+		JMenu jmGameMenu = new JMenu("Test");
+		JButton jb = new JButton("화면 크기 시험용");
+		JMenuBar jmb = new JMenuBar();
+		jmb.add(jmGameMenu);
+		setJMenuBar(jmb);
+		setLayout(null);
+		
+		jb.setBounds(0, 0, 600, 430);
+		add(jb);
+		//Test//			
 
 		int x = tkMyTool.getScreenSize().width;
 		int y = tkMyTool.getScreenSize().height;

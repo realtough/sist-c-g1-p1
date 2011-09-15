@@ -1,5 +1,6 @@
+package com.sist.server;
 
-public class CatchMind {
+public class ChattingServer {
 
 	/**
 	 * @param args

@@ -1,3 +1,4 @@
+package com.sist.client;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,13 +37,13 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				parent.getSize().height / 2 + dSize.height / 2, dSize.width,
 				dSize.height);
 
-		//이벤트 등록
+		// 이벤트 등록
 		jbAccept.addActionListener(this);
 		jbRegister.addActionListener(this);
 		jbCancel.addActionListener(this);
-		
+
 		setResizable(false);
-		setVisible(true);		
+		setVisible(true);
 	}
 
 	private void insert(Component cmp, int x, int y, int w, int h, double wx,
@@ -70,15 +71,14 @@ public class LobbyLogin extends JDialog implements ActionListener {
 
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
-
+			setVisible(false);
+			dispose();
 		} else if (ob == jbCancel) {
 			setVisible(false);
 			dispose();
-
 		} else if (ob == jbRegister) {
 			setVisible(false);
 			dispose();
-
 		}
 	}
 }

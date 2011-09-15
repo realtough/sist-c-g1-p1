@@ -1,3 +1,4 @@
+package com.sist.common;
 import java.util.*;
 
 public class UserInfoManager {
@@ -5,11 +6,6 @@ public class UserInfoManager {
 		
 	public UserInfoManager(){
 	
-		//Test Data
-		userList.put(getMaxNumber(), new UserInfo("hoon", "sistc", "병훈", "오리발", "열심히합시다", "", ""));
-		userList.put(getMaxNumber(), new UserInfo("hoon", "sistc", "병훈", "오리발", "열심히합시다", "", ""));
-		userList.put(getMaxNumber(), new UserInfo("hoon", "sistc", "병훈", "오리발", "열심히합시다", "", ""));
-		userList.put(getMaxNumber(), new UserInfo("hoon", "sistc", "병훈", "오리발", "열심히합시다", "", ""));
 	}
 	
 	//회원 추가

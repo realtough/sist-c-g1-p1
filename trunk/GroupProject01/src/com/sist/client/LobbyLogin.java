@@ -1,9 +1,12 @@
 package com.sist.client;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+
+import com.sist.common.Tools;
 
 public class LobbyLogin extends JDialog implements ActionListener {
 	private Dimension dSize = new Dimension(250, 150);
@@ -25,16 +28,16 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		jpButtonPanel.add(jbRegister);
 		jpButtonPanel.add(jbCancel);
 
-		insert(jlID, 0, 0, 1, 1, 0.0, 0.5);
-		insert(jlPW, 0, 1, 1, 1, 0.0, 0.5);
-		insert(jtfID, 1, 0, 2, 1, 0.9, 0.5);
-		insert(jpfPW, 1, 1, 2, 1, 0.9, 0.5);
+		Tools.insert(this, jlID, 0, 0, 1, 1, 0.0, 0.5, 5);
+		Tools.insert(this, jlPW, 0, 1, 1, 1, 0.0, 0.5, 5);
+		Tools.insert(this, jtfID, 1, 0, 2, 1, 0.9, 0.5, 5);
+		Tools.insert(this, jpfPW, 1, 1, 2, 1, 0.9, 0.5, 5);
 
-		insert(jpButtonPanel, 0, 3, 4, 1, 0.5, 0.5);
+		Tools.insert(this, jpButtonPanel, 0, 3, 4, 1, 0.5, 0.5, 5);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setBounds(parent.getSize().width / 2 + dSize.width / 2,
-				parent.getSize().height / 2 + dSize.height / 2, dSize.width,
+		setBounds(parent.getSize().width / 2 + dSize.width,
+				parent.getSize().height / 2 + dSize.height, dSize.width,
 				dSize.height);
 
 		// 이벤트 등록
@@ -44,20 +47,6 @@ public class LobbyLogin extends JDialog implements ActionListener {
 
 		setResizable(false);
 		setVisible(true);
-	}
-
-	private void insert(Component cmp, int x, int y, int w, int h, double wx,
-			double wy) {
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.gridwidth = w;
-		gbc.gridheight = h;
-		gbc.weightx = wx;
-		gbc.weighty = wy;
-		gbc.insets = new Insets(5, 5, 5, 5);
-		this.add(cmp, gbc);
 	}
 
 	private void checkInfo(String userId, String userPw) {
@@ -71,14 +60,16 @@ public class LobbyLogin extends JDialog implements ActionListener {
 
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
-			setVisible(false);
-			dispose();
+			String id = jtfID.getText().trim(); 
+			String pw = jpfPW.getPassword().toString().trim();
+			checkInfo(id, pw);
 		} else if (ob == jbCancel) {
 			setVisible(false);
 			dispose();
 		} else if (ob == jbRegister) {
 			setVisible(false);
 			dispose();
+			new LobbyRegister().requestFocus();
 		}
 	}
 }

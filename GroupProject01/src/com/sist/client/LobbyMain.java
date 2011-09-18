@@ -1,15 +1,27 @@
 package com.sist.client;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
+import com.sist.common.Tools;
+import com.sist.server.ChattingServer;
+
 //로비화면의 실제 폼과 기능 구현
 public class LobbyMain extends JFrame implements ActionListener {
+
+	Dimension frameSize = new Dimension(810, 645);
+	Dimension framePosition = new Dimension(
+			Tools.centerX - frameSize.width / 2, Tools.centerY
+					- frameSize.height / 2);
 
 	// 보더효과와 카드레이아웃 설정
 	Border bdMainEdge = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
@@ -32,14 +44,14 @@ public class LobbyMain extends JFrame implements ActionListener {
 	JPanel jpChat = new JPanel();
 	JTextArea jtaChatList = new JTextArea();
 	JTextField jtfChatInput = new JTextField();
+	
+	JScrollPane jsChatList = new JScrollPane(jtaChatList);
+	JScrollBar jbChatListBar;
 
-	// JFrame시작 위치를 잡기위한 툴킷과 좌표 설정
-	Toolkit tkMyTool = Toolkit.getDefaultToolkit();
-	int positionX = tkMyTool.getScreenSize().width / 2 - 405;
-	int positionY = tkMyTool.getScreenSize().height / 2 - 325;
+	boolean sendSuspend = true;
 
 	public LobbyMain() {
-		super("Mini Game Paradise");
+		super("Mini Game");
 
 		// 메뉴바 설정
 		jmGameMenu.add(jmLogin);
@@ -48,9 +60,8 @@ public class LobbyMain extends JFrame implements ActionListener {
 		setJMenuBar(jmb);
 
 		// 접속 유저 정보 테이블 생성
-		String col[] = { "아이디", "닉네임" };
-		// String row[][] = new String[0][2];
-		String row[][] = { { "test", "밥줘" } };
+		String col[] = { "닉네임", "계급" };
+		String row[][] = new String[0][2];
 		dtModel = new DefaultTableModel(row, col) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -58,6 +69,7 @@ public class LobbyMain extends JFrame implements ActionListener {
 				return false;
 			}
 		};
+
 		jtUserList = new JTable(dtModel);
 
 		// Test//
@@ -68,22 +80,24 @@ public class LobbyMain extends JFrame implements ActionListener {
 		// Test//
 
 		// 채팅창 설정
+		jbChatListBar = jsChatList.getVerticalScrollBar();
 		jtaChatList.setEditable(false);
 		jpChat.setLayout(new GridBagLayout());
-		insert(jpChat, new JScrollPane(jtaChatList), 0, 0, 1, 1, 0.5, 0.9);
-		insert(jpChat, jtfChatInput, 0, 1, 1, 1, 0.5, 0.1);
+		Tools.insert(jpChat, jsChatList, 0, 0, 1, 1, 0.5, 0.9);
+		Tools.insert(jpChat, jtfChatInput, 0, 1, 1, 1, 0.5, 0.1);
 
 		// 유저 정보창 배치
 		jpRightTab.setLayout(new GridBagLayout());
-		insert(jpRightTab, jpUserInfo, 0, 0, 1, 1, 0.3, 0.3);
-		insert(jpRightTab, new JScrollPane(jtUserList), 0, 1, 1, 1, 0.7, 0.7);
+		Tools.insert(jpRightTab, jpUserInfo, 0, 0, 1, 1, 0.5, 0.5);
+		Tools.insert(jpRightTab, new JScrollPane(jtUserList), 0, 1, 1, 1, 0.5,
+				0.5);
 
 		// 패널 배치 (메인화면, 우측 정보창, 채팅창)
 		jpMain.setLayout(null);
 		jpGameMain.setLayout(card);
 		jpGameMain.setBounds(5, 5, 600, 430);
 		jpMain.add(jpGameMain);
-		jpChat.setBounds(5, 440, 600, 150);
+		jpChat.setBounds(5, 440, 602, 153);
 		jpMain.add(jpChat);
 		jpRightTab.setBounds(610, 5, 190, 585);
 		jpMain.add(jpRightTab);
@@ -91,7 +105,8 @@ public class LobbyMain extends JFrame implements ActionListener {
 		add(jpMain);
 
 		// 프레임 기본설정 (위치는 항상 중앙, 리사이징 불가)
-		setBounds(positionX, positionY, 810, 650);
+		setBounds(framePosition.width, framePosition.height, frameSize.width,
+				frameSize.height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);
@@ -105,38 +120,128 @@ public class LobbyMain extends JFrame implements ActionListener {
 		jmExit.addActionListener(this);
 	}
 
+	public void clientStart() {
+		String serverIp = "localhost";
+		String userName = "홍길동";
+		int serverPort = 10000;
+		try {
+			Socket socket = new Socket(serverIp, serverPort);
+			ClientReceiver crThread = new ClientReceiver(socket);
+			ClientSender csThread = new ClientSender(userName, socket);
+			crThread.start();
+			csThread.start();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void appendChatLog(String msg) {
+		jtaChatList.append(msg + "\n");
+		jbChatListBar.setValue(jbChatListBar.getMaximum());
+	}
+
 	public static void main(String[] args) {
-		new LobbyMain();
+		new LobbyMain().clientStart();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+
 		Object ob = e.getSource();
-		
+
 		if (ob == jmLogin) {
 			new LobbyLogin(this);
 		} else if (ob == jmExit) {
 			System.exit(0);
 		}
-		
+
 		if (ob == jtfChatInput) {
-			jtaChatList.append(jtfChatInput.getText() + "\n");
-			jtfChatInput.setText("");
+			sendSuspend = false;
 		}
 	}
 
-	private void insert(Container cnt, Component cmp, int x, int y, int w,
-			int h, double wx, double wy) {
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.gridwidth = w;
-		gbc.gridheight = h;
-		gbc.weightx = wx;
-		gbc.weighty = wy;
-		gbc.insets = new Insets(2, 2, 2, 2);
-		cnt.add(cmp, gbc);
+	class ClientReceiver extends Thread {
+		Socket socket;
+		DataInputStream dis;
+
+		public ClientReceiver(Socket socket) {
+			this.socket = socket;
+			try {
+				dis = new DataInputStream(socket.getInputStream());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		public void run() {
+			try {
+				while (dis != null) {
+					// appendChatLog(dis.readUTF());
+					classfyMessage(dis.readUTF());
+				}
+			} catch (IOException ioe) {
+				// TODO: handle exception
+				ioe.printStackTrace();
+			}
+		}
+
+		private void classfyMessage(String msg) {
+			String msgtemp[] = msg.split(" ", 3);
+			if (msgtemp[0].equals("[접속유저]")) {				
+				// 접속유저 목록은 "|"를 식별자로 하나의 문자열로 합쳐져 있으므로 이를 분리한다
+				String userList[] = msgtemp[1].split("\\|");
+				// 테이블은 부분 수정이 불가능하므로 테이블 삭제후 다시 전체 유저목록을 삽입한다
+				for (int i = 0; i < dtModel.getRowCount(); i++) {
+					dtModel.removeRow(i);
+				}				
+				for (int i = 0; i < userList.length; i++) {
+					String temp[] = {userList[i], "신병" };
+					dtModel.addRow(temp);
+				}
+			} else {
+				appendChatLog(msg);
+			}
+		}
+	}
+
+	class ClientSender extends Thread {
+		Socket socket;
+		DataOutputStream dos;
+		String name;
+
+		public ClientSender(String userName, Socket socket) {
+			// socket의 output 스트림에 write한다
+			this.socket = socket;
+			this.name = userName;
+			try {
+				dos = new DataOutputStream(socket.getOutputStream());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		public void run() {
+			try {
+				if (dos != null) {
+					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
+				}
+				while (dos != null) {
+					if (!sendSuspend) {
+						dos.writeUTF(jtfChatInput.getText());
+						jtfChatInput.setText("");
+						sendSuspend = true;
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }

@@ -9,17 +9,20 @@ public class UserInfoManager {
 	}
 	
 	//회원 추가
-	public void userInsert(){
-		
+	public void insertUser(UserInfo ui){
+		userList.put(getMaxNumber(), ui);
+		for(int i=0; i<userList.size(); i++){
+			System.out.println(userList.get(new Integer(i)).toString());
+		}
 	}
 	
 	//회원 탈퇴
-	public void userDelete(int userNum, String password){
+	public void deleteUser(int userNum, String password){
 		
 	}
 	
 	//회원 수정
-	public void userModify(int userNum, String password){
+	public void updateUser(int userNum, String password){
 		
 	}
 	

@@ -1,11 +1,16 @@
 package com.sist.common;
 import java.util.*;
 
+//DB랑 통신필요
 public class UserInfoManager {
 	HashMap<Integer, UserInfo> userList = new HashMap<Integer, UserInfo>();
 		
 	public UserInfoManager(){
-	
+		userList.put(getMaxNumber(), new UserInfo("abcd", "1234", "홍길동", new Date(), 1, new Date(), "길동이"));
+		userList.put(getMaxNumber(), new UserInfo("dcba", "4321", "이순신", new Date(), 1, new Date(), "순신이"));
+		userList.put(getMaxNumber(), new UserInfo("test", "1111", "심청이", new Date(), 2, new Date(), "청이"));
+		userList.put(getMaxNumber(), new UserInfo("qwert", "0987", "황진이", new Date(), 2, new Date(), "진이"));
+		userList.put(getMaxNumber(), new UserInfo("zxcv", "5678", "이만기", new Date(), 1, new Date(), "천하장사"));
 	}
 	
 	//회원 추가
@@ -35,10 +40,5 @@ public class UserInfoManager {
 		int max = 0;
 		if(userList.size() > max) max = userList.size();
 		return new Integer(max);
-	}
-	
-	public static void main(String[] args) {
-		UserInfoManager uim = new UserInfoManager();		
-		System.out.println(uim.userList.get(new Integer(1)).toString());
-	}
+	}	
 }

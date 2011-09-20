@@ -30,7 +30,7 @@ public class UserInfoManager {
 	public void updateUser(int userNum, String password){
 		
 	}
-	
+			
 	//회원 목록
 	public HashMap<Integer, UserInfo> userAllList(){
 		return null;
@@ -41,4 +41,17 @@ public class UserInfoManager {
 		if(userList.size() > max) max = userList.size();
 		return new Integer(max);
 	}	
+	
+	//로그인서버로 부터 받은 정보 검증
+	//ID가 없을 경우, ID는 맞지만 패스워드가 틀릴경우, 모두 맞을경우
+	public int verifyUser(UserInfo ui){
+		Iterator<Integer> itUserNo = userList.keySet().iterator();
+		while(itUserNo.hasNext()){
+			UserInfo sui = userList.get(itUserNo.next());
+//			if(ui.getUserID())
+		}
+		int result = 0;
+		
+		return result;
+	}
 }

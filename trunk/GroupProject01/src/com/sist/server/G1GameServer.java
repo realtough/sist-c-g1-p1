@@ -13,16 +13,14 @@ import com.sist.common.Tools;
 import com.sist.common.UserInfoManager;
 
 //로그인과 유저정보 관리를 별도 서버로 분리할지 고려할것
-public class G1GameServer extends JFrame implements ActionListener {	
+public class G1GameServer extends JFrame implements ActionListener{	
 	Dimension dSize = new Dimension(640, 600);
 	Dimension dPosition = new Dimension(Tools.centerX - dSize.width / 2,
 			Tools.centerY - dSize.height / 2);
-	
-	// 유저정보 처리를 담당할 uiManager객체 생성
-	private UserInfoManager uiManager = new UserInfoManager();
 
-	boolean isServerClose = true; 
-	
+	boolean isServerOn = false; 
+
+	private JScrollBar jbScrollBar;
 	private JTextArea jtaServerLog = new JTextArea();
 	private JScrollPane jsPane = new JScrollPane(jtaServerLog);
 	private JTextField jtfServerInput = new JTextField();
@@ -36,7 +34,7 @@ public class G1GameServer extends JFrame implements ActionListener {
 	ChattingServer ctServer = new ChattingServer(this);
 	
 	public G1GameServer() {
-
+		jbScrollBar = jsPane.getVerticalScrollBar();
 		jtaServerLog.setEditable(false);
 
 		add("Center", jsPane);
@@ -61,24 +59,25 @@ public class G1GameServer extends JFrame implements ActionListener {
 		jtfServerInput.addActionListener(this);
 	}	
 
-	private void appendServerLog(String msg) {
+	protected void appendServerLog(String msg) {
 		jtaServerLog.append(msg + "\n");
+		jbScrollBar.setValue(jbScrollBar.getMaximum());
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		G1GameServer myServer = new G1GameServer();
+		new G1GameServer();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
 		if (ob == jmStart) {	
-			isServerClose=false;
-			liServer.start();
+			isServerOn = true;
+			liServer.start();		
 			ctServer.start();
 		} else if (ob == jmClose) {
-			isServerClose = true;
+			isServerOn = false;
 		}
 		if (ob == jtfServerInput) {
 			ctServer.sendToAll("서버", jtfServerInput.getText());

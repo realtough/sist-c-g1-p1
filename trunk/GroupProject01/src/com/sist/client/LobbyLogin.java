@@ -8,13 +8,13 @@ import javax.swing.*;
 
 import com.sist.common.Tools;
 
-//서버와의 통신은 가능한한 Main클래스로 한정하도록
+//로그인 서버와 통신. 입력받은 아이디와 패스워드를 하나의 문자열로 합쳐 전송
+//인증 받았을시 서버로부터 닉네임을 전달받아 LobbyMain에 전달
 public class LobbyLogin extends JDialog implements ActionListener {
 	private Dimension dSize = new Dimension(250, 150);
 	private Dimension dPosition = new Dimension(getParent().getX()
 			+ getParent().getSize().width / 2 - dSize.width / 2, getParent()
 			.getY() + getParent().getSize().height / 2 - dSize.height / 2);
-//	private Dimension dPosition = new Dimension(getParent().getX(), getParent().getY());
 	private JPanel jpButtonPanel = new JPanel();
 	private JLabel jlID = new JLabel("아이디   ", JLabel.RIGHT);
 	private JLabel jlPW = new JLabel("비밀번호   ", JLabel.RIGHT);
@@ -55,7 +55,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		setResizable(false);		
 	}
 
-	private void verifyUser() {
+	private void userLogin() {
 		// 아이디가 없을때
 		// 아이디는 맞지만 비밀번호가 틀릴때
 		// 서버와 통신 필요
@@ -63,6 +63,9 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		String pw = jpfPW.getPassword().toString().trim();
 		if(id.length()==0 || pw.length()==0){
 			JOptionPane.showMessageDialog(this, "아이디와 패스워드를 입력하세요");
+		} else{
+//			JOptionPane.showMessageDialog(this, "존재하지 않는 아이디 입니다");
+//			JOptionPane.showMessageDialog(this, "패스워드가 틀립니다");
 		}
 	}
 
@@ -70,7 +73,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
-			verifyUser();
+			userLogin();
 		} else if (ob == jbCancel) {
 			setVisible(false);
 			dispose();
@@ -80,7 +83,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		} else if (ob == jtfID) {
 			jpfPW.requestFocus();
 		} else if (ob == jpfPW) {
-			verifyUser();
+			userLogin();
 		}
 	}
 }

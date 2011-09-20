@@ -7,7 +7,7 @@ import java.util.Date;
 import javax.swing.*;
 import com.sist.common.*;
 
-//서버와의 통신은 가능한한 Main클래스로 한정하도록
+//로그인 서버와 통신 입력받은 유저정보를 전달
 public class LobbyRegister extends JDialog implements ActionListener {
 
 	Dimension dSize = new Dimension(320, 300);

@@ -86,12 +86,12 @@ public class CatchMind extends JFrame implements MouseMotionListener {
 	@Override
 	public void mouseDragged(MouseEvent e) {
 	if(e.getModifiers()!=MouseEvent.BUTTON1_DOWN_MASK)return;
-	
+	System.out.println(e.getX() + ":" + e.getY());
 	gImg.drawLine(x, y, e.getX(), e.getY());
 	
 	x=e.getX();
 	y=e.getY();
-	System.out.println(x + ":" + y);
+	
 	repaint();
 		
 	}

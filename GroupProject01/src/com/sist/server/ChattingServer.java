@@ -4,17 +4,20 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+//로그인 이후 모든 통신 처리. 전체, 1:1, 1:M 전달 기능 구현할것
+//클라이언트로부터 받은 닉네임을  키로, 전달받은 메시지를 값으로 받는 해쉬맵에
+//유저정보 저장
 public class ChattingServer extends Thread {
+	G1GameServer g1Server;
 	boolean isServerOn = false;
 	private HashMap<String, DataOutputStream> clients; // 현재접속유저
 
 	public ChattingServer(G1GameServer g1Server) {
 		// 클라이언트의 정보를 저장할 해쉬맵 clients생성 - key는 id, value는 메시지
 		// Thread Safe 상태로 만든다
+		this.g1Server = g1Server; 
 		clients = new HashMap<String, DataOutputStream>();
-		Collections.synchronizedMap(clients);
-		
-		chatServerStart();
+		Collections.synchronizedMap(clients);				
 	}
 
 	private void chatServerStart() {
@@ -26,14 +29,14 @@ public class ChattingServer extends Thread {
 			serverSocket = new ServerSocket(10000);
 			InetAddress inet = InetAddress.getLocalHost();
 			// 서버시작 알림. 아이피와 포트 표시
-			// appendServerLog("[채팅서버] " + inet.getHostAddress() + ":"
-			// + serverSocket.getLocalPort());
-			System.out.println("서버시작");
+			g1Server.appendServerLog("[채팅서버] " + inet.getHostAddress() + ":"
+			 + serverSocket.getLocalPort());			
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				socket = serverSocket.accept();
-				ServerReceiver srThread = new ServerReceiver(socket);
-				srThread.start();
+				System.out.println("Connected");
+				ServerOperator soThread = new ServerOperator(socket);
+				soThread.start();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -42,14 +45,11 @@ public class ChattingServer extends Thread {
 	}
 
 	public void run() {
-
+		chatServerStart();
 	}
 
-	private void showUserNumber() {
-//		appendServerLog("현재 접속자 수는 : " + clients.size() + "명 입니다");
-	}
-
-	private void sendConnectedUser() {
+	private void sendUserStatus() {
+		g1Server.appendServerLog("현재 접속자 수는 : " + clients.size() + "명 입니다");
 		// 접속한 유저 상황에 변동이 있을경우 (입장, 퇴장시)
 		// 새 접속 유저정보를 전체에 전송한다
 		Iterator<String> clientsName = clients.keySet().iterator();
@@ -63,13 +63,12 @@ public class ChattingServer extends Thread {
 			try {
 				DataOutputStream dos = (DataOutputStream) clients
 						.get(clientsName.next());
-				dos.writeUTF("/sys " + connectedUser);
-				System.out.println(connectedUser);
+				dos.writeUTF("/sys " + connectedUser);				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}		
 	}
 
 	// 1:1메시지 - 보낸사람과 받는사람 두명에게만 전송한다
@@ -109,16 +108,16 @@ public class ChattingServer extends Thread {
 		}
 	}
 
-	class ServerReceiver extends Thread {
+	class ServerOperator extends Thread {
 
 		Socket socket;
 		DataInputStream dis;
 		DataOutputStream dos;
 
-		public ServerReceiver(Socket socket) {
+		public ServerOperator(Socket socket) {
 			this.socket = socket;
-			// appendServerLog(socket.getInetAddress() + ":" + socket.getPort()
-			// + " 연결");
+			g1Server.appendServerLog(socket.getInetAddress() + ":" + socket.getPort()
+			 + " 연결");
 			try {
 				dis = new DataInputStream(socket.getInputStream());
 				dos = new DataOutputStream(socket.getOutputStream());
@@ -147,22 +146,19 @@ public class ChattingServer extends Thread {
 				clients.put(name, dos);
 				dos.writeUTF("접속하신것을 환영합니다");
 				sendToAll("서버", name + " 님이 입장 하셨습니다");
-				showUserNumber();
-				sendConnectedUser();
+				sendUserStatus();
 				// 입력 스트림 내용을 반복하여 클라이언트 전체에 전송한다
 				while (dis != null) {
 					classfyMessage(name, dis.readUTF());
 				}
 			} catch (Exception e) {
-				// TODO: handle exception
-				System.out.println(e.getMessage());
+				// TODO: handle exception				
 			} finally { // 퇴장시 처리
 				clients.remove(name);
 				sendToAll("서버", name + " 님이 퇴장 하셨습니다");
-				// appendServerLog(socket.getInetAddress() + ":"
-				// + socket.getPort() + " 연결 끊김");
-				showUserNumber();
-				sendConnectedUser();
+				g1Server.appendServerLog(socket.getInetAddress() + ":"
+				 + socket.getPort() + " 연결 끊김");	
+				sendUserStatus();
 			}
 		}
 	}//ServerReceiver

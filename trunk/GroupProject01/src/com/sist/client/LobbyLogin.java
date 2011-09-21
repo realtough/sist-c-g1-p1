@@ -126,8 +126,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		}
 	}
 
-	private void classfyMessage(String msg) {
-		System.out.println(msg);
+	private void classfyMessage(String msg) {		
 		String msgtemp[] = msg.split(" ", 3);
 		if (msgtemp[0].equals("[로그인서버]")) {
 			switch(Integer.parseInt(msgtemp[1])){
@@ -198,8 +197,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 				}
 				while (dos != null) {
-					if(!isSuspend){
-						System.out.println(idpwMessage);
+					if(!isSuspend){						
 						dos.writeUTF(idpwMessage);
 						isSuspend = true;
 					}

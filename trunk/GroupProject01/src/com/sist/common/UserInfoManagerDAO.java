@@ -1,30 +1,33 @@
 package com.sist.common;
 
 import java.util.*;
+import java.util.Date;
+import java.sql.*;
 
 //DB랑 통신필요
-public class UserInfoManager {
-	HashMap<Integer, UserInfo> alluserList = new HashMap<Integer, UserInfo>();
+public class UserInfoManagerDAO {
+	private final String ORACLE_URL = "";
+	HashMap<Integer, UserInfoVO> alluserList = new HashMap<Integer, UserInfoVO>();
 
-	public UserInfoManager() {
-		alluserList.put(getMaxNumber(), new UserInfo("hoon", "sist", "조병훈",
+	public UserInfoManagerDAO() {
+		alluserList.put(getMaxNumber(), new UserInfoVO("hoon", "sist", "조병훈",
 				new Date(), 1, new Date(), "훈이"));
-		alluserList.put(getMaxNumber(), new UserInfo("ho", "sist", "김재호",
+		alluserList.put(getMaxNumber(), new UserInfoVO("ho", "sist", "김재호",
 				new Date(), 1, new Date(), "호이"));
-		alluserList.put(getMaxNumber(), new UserInfo("jun", "sist", "주형준",
+		alluserList.put(getMaxNumber(), new UserInfoVO("jun", "sist", "주형준",
 				new Date(), 1, new Date(), "준이"));
-		alluserList.put(getMaxNumber(), new UserInfo("hyun", "sist", "김지현",
+		alluserList.put(getMaxNumber(), new UserInfoVO("hyun", "sist", "김지현",
 				new Date(), 1, new Date(), "현이"));
-		alluserList.put(getMaxNumber(), new UserInfo("wook", "sist", "조성욱",
+		alluserList.put(getMaxNumber(), new UserInfoVO("wook", "sist", "조성욱",
 				new Date(), 1, new Date(), "욱이"));
 	}
 
 	// 회원 추가
-	public void insertUser(UserInfo ui) {
+	public void insertUser(UserInfoVO ui) {
 		alluserList.put(getMaxNumber(), ui);
-		for (int i = 0; i < alluserList.size(); i++) {
-			System.out.println(alluserList.get(new Integer(i)).toString());
-		}
+//		for (int i = 0; i < alluserList.size(); i++) {
+//			System.out.println(alluserList.get(new Integer(i)).toString());
+//		}
 	}
 
 	// 회원 탈퇴
@@ -42,7 +45,7 @@ public class UserInfoManager {
 		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
 		String result = "";
 		while (itUserNo.hasNext()) {
-			UserInfo sui = alluserList.get(itUserNo.next());
+			UserInfoVO sui = alluserList.get(itUserNo.next());
 			if (sui.getUserID().equals(id)) {
 				result = sui.getUserNickname();
 				break;
@@ -51,7 +54,7 @@ public class UserInfoManager {
 		return result; 
 	}
 	// 회원 목록
-	public HashMap<Integer, UserInfo> userAllList() {
+	public HashMap<Integer, UserInfoVO> userAllList() {
 		return null;
 	}
 
@@ -68,7 +71,7 @@ public class UserInfoManager {
 		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
 		String result = "";
 		while (itUserNo.hasNext()) {
-			UserInfo sui = alluserList.get(itUserNo.next());
+			UserInfoVO sui = alluserList.get(itUserNo.next());
 			if (sui.getUserID().equals(userID)
 					&& sui.getUserPW().equals(userPW)) {
 				result = "11 "+sui.getUserNickname();

@@ -3,7 +3,7 @@ package com.sist.common;
 import java.io.*;
 import java.net.Socket;
 
-abstract public class ClientOperator extends Thread {
+abstract public class ClientOperatorTest extends Thread {
 	protected String userName;
 	protected Socket socket;
 	protected DataInputStream diStream;
@@ -20,7 +20,7 @@ abstract public class ClientOperator extends Thread {
 	protected boolean receiveStop = false;
 	protected boolean isFirstRun = true;
 
-	public ClientOperator(String userName, Socket socket) {
+	public ClientOperatorTest(String userName, Socket socket) {
 		this.userName = userName;
 		this.socket = socket;
 
@@ -41,13 +41,13 @@ abstract public class ClientOperator extends Thread {
 		}
 	}
 
-	public void send() {
+	public void send(String msg) {
 		try {
 			if (isFirstRun) {
 				doStream.writeUTF(userName);
 				isFirstRun = false;
 			} else {
-				doStream.writeUTF(outputString);
+				doStream.writeUTF(msg);
 			}			
 		} catch (IOException ioe) {
 			// TODO: handle exception

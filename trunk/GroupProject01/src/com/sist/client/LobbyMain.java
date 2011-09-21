@@ -12,10 +12,11 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
+import com.sist.common.G1Client;
 import com.sist.common.Tools;
 
 //로비화면의 실제 폼과 기능 구현
-public class LobbyMain extends JFrame implements ActionListener {
+public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	Dimension gameMainSize = new Dimension(800, 600);
 	Dimension frameSize = new Dimension(1024, 768);
 	Dimension framePosition = new Dimension(
@@ -136,6 +137,8 @@ public class LobbyMain extends JFrame implements ActionListener {
 		jmExit.addActionListener(this);
 	}
 
+	//네트워크 관련 기능 초기화와 시작
+	//서버아이피와 포트는 Tools클래스에서 정의
 	public void clientStart(String userName) {				
 		try {			
 			Socket socket = new Socket(Tools.serverIp, Tools.portChatServer);			

@@ -48,8 +48,7 @@ abstract public class ClientOperator extends Thread {
 				isFirstRun = false;
 			} else {
 				doStream.writeUTF(outputString);
-			}
-			if(sendSuspend) sendSuspend = true;
+			}			
 		} catch (IOException ioe) {
 			// TODO: handle exception
 		}

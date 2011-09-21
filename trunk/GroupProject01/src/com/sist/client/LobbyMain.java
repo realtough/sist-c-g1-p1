@@ -12,7 +12,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
-import com.sist.common.ClientOperator;
 import com.sist.common.Tools;
 
 //로비화면의 실제 폼과 기능 구현
@@ -26,7 +25,6 @@ public class LobbyMain extends JFrame implements ActionListener {
 	// 로그인과 가입 폼 다이얼로그 선언
 	LobbyLogin lLogin;
 	LobbyRegister lRegister;
-	ChatOperator chOperator;
 
 	// 보더효과와 카드레이아웃 설정
 	Border bdMainEdge = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
@@ -59,7 +57,7 @@ public class LobbyMain extends JFrame implements ActionListener {
 	JButton jbGame3 = new JButton("게임3");
 	JButton jbGame4 = new JButton("게임4");
 
-	boolean sendMessage = false;
+	boolean sendSuspend = true;
 
 	public LobbyMain() {
 		super("Mini Game");
@@ -89,13 +87,13 @@ public class LobbyMain extends JFrame implements ActionListener {
 		// jpGameMain.setBackground(Color.BLUE);
 		// Test//
 
-		// GameSelect패널 설정
+		//GameSelect패널 설정
 		jpGameSelect.setLayout(new GridLayout(2, 2, 5, 5));
 		jpGameSelect.add(jbGame1);
 		jpGameSelect.add(jbGame2);
 		jpGameSelect.add(jbGame3);
 		jpGameSelect.add(jbGame4);
-
+		
 		// 채팅창 설정
 		jtaChatList.setLineWrap(true);
 		jbChatListBar = jsChatList.getVerticalScrollBar();
@@ -138,14 +136,13 @@ public class LobbyMain extends JFrame implements ActionListener {
 		jmExit.addActionListener(this);
 	}
 
-	public void clientStart() {
-		String serverIp = "localhost";
-		String userName = "홍길동";
-		int serverPort = 10000;
-		try {
-			Socket socket = new Socket(serverIp, serverPort);
-			chOperator = new ChatOperator(userName, socket);
-			chOperator.start();
+	public void clientStart(String userName) {				
+		try {			
+			Socket socket = new Socket(Tools.serverIp, Tools.portChatServer);			
+			ClientReceiver crThread = new ClientReceiver(socket);
+			ClientSender csThread = new ClientSender(userName, socket);
+			crThread.start();
+			csThread.start();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -161,7 +158,7 @@ public class LobbyMain extends JFrame implements ActionListener {
 	}
 
 	public static void main(String[] args) {
-		new LobbyMain().clientStart();
+		new LobbyMain();
 	}
 
 	@Override
@@ -170,46 +167,44 @@ public class LobbyMain extends JFrame implements ActionListener {
 		Object ob = e.getSource();
 
 		if (ob == jmLogin) {
-			lLogin.setVisible(true);
+			lLogin.lobbyLoginStart();
+			lLogin.setVisible(true);			
 		} else if (ob == jmExit) {
 			System.exit(0);
 		}
 
 		if (ob == jtfChatInput) {
-			System.out.println("Chat input");
-			chOperator.sendSuspend = false;
+			sendSuspend = false;
 		}
 	}
 
-	class ChatOperator extends ClientOperator {
+	class ClientReceiver extends Thread {
+		Socket socket;
+		DataInputStream dis;
 
-		public ChatOperator(String userName, Socket socket) {
-			super(userName, socket);
-		}
-
-		public void run() {
-			while (true) {
-
-				if(!sendSuspend){					
-					System.out.println("send called in thread");
-					outputString = jtfChatInput.getText().trim();
-					jtfChatInput.setText("");
-					send();														
-				}
-				
-				if (doStream != null) {		
-					
-				}
-				
-				if (diStream != null) {
-					if (!receiveSuspend)
-						receive();
-					classfyMessage(inputString);
-				}				
+		public ClientReceiver(Socket socket) {
+			this.socket = socket;
+			try {
+				dis = new DataInputStream(socket.getInputStream());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
-		public void classfyMessage(String msg) {
+		public void run() {
+			try {
+				while (dis != null) {
+					// appendChatLog(dis.readUTF());
+					classfyMessage(dis.readUTF());
+				}
+			} catch (IOException ioe) {
+				// TODO: handle exception
+				ioe.printStackTrace();
+			}
+		}
+
+		private void classfyMessage(String msg) {
 			String msgtemp[] = msg.split(" ", 3);
 			if (msgtemp[0].equals("/sys")) {
 				// 접속유저 목록은 "|"를 식별자로 하나의 문자열로 합쳐져 있으므로 이를 분리한다
@@ -222,8 +217,44 @@ public class LobbyMain extends JFrame implements ActionListener {
 					String temp[] = { userList[i], "신병" };
 					dtModel.addRow(temp);
 				}
-			} else {
+			} else {				
 				appendChatLog(msg);
+			}
+		}
+	}
+
+	class ClientSender extends Thread {
+		Socket socket;
+		DataOutputStream dos;
+		String name;
+
+		public ClientSender(String userName, Socket socket) {
+			// socket의 output 스트림에 write한다
+			this.socket = socket;
+			this.name = userName;
+			try {
+				dos = new DataOutputStream(socket.getOutputStream());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		public void run() {
+			try {
+				if (dos != null) {
+					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
+				}
+				while (dos != null) {
+					if (!sendSuspend) {
+						dos.writeUTF(jtfChatInput.getText());
+						jtfChatInput.setText("");
+						sendSuspend = true;
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

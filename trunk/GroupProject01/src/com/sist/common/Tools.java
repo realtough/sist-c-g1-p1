@@ -8,6 +8,9 @@ public class Tools {
 	private static Toolkit myTK = Toolkit.getDefaultToolkit();
 	public static int centerX = myTK.getScreenSize().width / 2;
 	public static int centerY = myTK.getScreenSize().height / 2;
+	public static String serverIp = "211.238.142.116";
+	public static int portChatServer = 10000;
+	public static int portLoginServer = 10001;
 	private boolean sendSuspend = true;
 	
 	//그리드백 레이아웃 용 메소드

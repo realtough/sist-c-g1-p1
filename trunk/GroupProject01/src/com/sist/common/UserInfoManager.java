@@ -1,57 +1,86 @@
 package com.sist.common;
+
 import java.util.*;
 
 //DB랑 통신필요
 public class UserInfoManager {
-	HashMap<Integer, UserInfo> userList = new HashMap<Integer, UserInfo>();
-		
-	public UserInfoManager(){
-		userList.put(getMaxNumber(), new UserInfo("abcd", "1234", "홍길동", new Date(), 1, new Date(), "길동이"));
-		userList.put(getMaxNumber(), new UserInfo("dcba", "4321", "이순신", new Date(), 1, new Date(), "순신이"));
-		userList.put(getMaxNumber(), new UserInfo("test", "1111", "심청이", new Date(), 2, new Date(), "청이"));
-		userList.put(getMaxNumber(), new UserInfo("qwert", "0987", "황진이", new Date(), 2, new Date(), "진이"));
-		userList.put(getMaxNumber(), new UserInfo("zxcv", "5678", "이만기", new Date(), 1, new Date(), "천하장사"));
+	HashMap<Integer, UserInfo> alluserList = new HashMap<Integer, UserInfo>();
+
+	public UserInfoManager() {
+		alluserList.put(getMaxNumber(), new UserInfo("hoon", "sist", "조병훈",
+				new Date(), 1, new Date(), "훈이"));
+		alluserList.put(getMaxNumber(), new UserInfo("ho", "sist", "김재호",
+				new Date(), 1, new Date(), "호이"));
+		alluserList.put(getMaxNumber(), new UserInfo("jun", "sist", "주형준",
+				new Date(), 1, new Date(), "준이"));
+		alluserList.put(getMaxNumber(), new UserInfo("hyun", "sist", "김지현",
+				new Date(), 1, new Date(), "현이"));
+		alluserList.put(getMaxNumber(), new UserInfo("wook", "sist", "조성욱",
+				new Date(), 1, new Date(), "욱이"));
 	}
-	
-	//회원 추가
-	public void insertUser(UserInfo ui){
-		userList.put(getMaxNumber(), ui);
-		for(int i=0; i<userList.size(); i++){
-			System.out.println(userList.get(new Integer(i)).toString());
+
+	// 회원 추가
+	public void insertUser(UserInfo ui) {
+		alluserList.put(getMaxNumber(), ui);
+		for (int i = 0; i < alluserList.size(); i++) {
+			System.out.println(alluserList.get(new Integer(i)).toString());
 		}
 	}
-	
-	//회원 탈퇴
-	public void deleteUser(int userNum, String password){
-		
+
+	// 회원 탈퇴
+	public void deleteUser(int userNum, String password) {
+
 	}
-	
-	//회원 수정
-	public void updateUser(int userNum, String password){
-		
+
+	// 회원 수정
+	public void updateUser(int userNum, String password) {
+
 	}
-			
-	//회원 목록
-	public HashMap<Integer, UserInfo> userAllList(){
+
+	// 회원 찾기
+	public String getNickByID(String id){
+		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
+		String result = "";
+		while (itUserNo.hasNext()) {
+			UserInfo sui = alluserList.get(itUserNo.next());
+			if (sui.getUserID().equals(id)) {
+				result = sui.getUserNickname();
+				break;
+			} 
+		}				
+		return result; 
+	}
+	// 회원 목록
+	public HashMap<Integer, UserInfo> userAllList() {
 		return null;
 	}
-	
-	public Integer getMaxNumber(){
+
+	public Integer getMaxNumber() {
 		int max = 0;
-		if(userList.size() > max) max = userList.size();
+		if (alluserList.size() > max)
+			max = alluserList.size();
 		return new Integer(max);
-	}	
-	
-	//로그인서버로 부터 받은 정보 검증
-	//ID가 없을 경우, ID는 맞지만 패스워드가 틀릴경우, 모두 맞을경우
-	public int verifyUser(UserInfo ui){
-		Iterator<Integer> itUserNo = userList.keySet().iterator();
-		while(itUserNo.hasNext()){
-			UserInfo sui = userList.get(itUserNo.next());
-//			if(ui.getUserID())
+	}
+
+	// 로그인서버로 부터 받은 정보 검증
+	// ID가 없을 경우, ID는 맞지만 패스워드가 틀릴경우, 모두 맞을경우
+	public String verifyUser(String userID, String userPW) {
+		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
+		String result = "";
+		while (itUserNo.hasNext()) {
+			UserInfo sui = alluserList.get(itUserNo.next());
+			if (sui.getUserID().equals(userID)
+					&& sui.getUserPW().equals(userPW)) {
+				result = "11 "+sui.getUserNickname();
+				break;
+			} else if (sui.getUserID().equals(userID)
+					&& !sui.getUserPW().equals(userPW)) {
+				result = "12";
+				break;
+			} else if (!sui.getUserID().equals(userID)) {
+				result = "22";
+			}
 		}
-		int result = 0;
-		
 		return result;
 	}
 }

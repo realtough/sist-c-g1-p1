@@ -100,9 +100,9 @@ public class LobbyRegister extends JDialog implements ActionListener {
 		Date birthDate = sdModel.getDate();
 		Date registDate = new Date();
 
-		UserInfo ui = new UserInfo(id, pw, name, birthDate, sex, registDate,
+		UserInfoVO ui = new UserInfoVO(id, pw, name, birthDate, sex, registDate,
 				nick);
-		new UserInfoManager().insertUser(ui);
+		new UserInfoManagerDAO().insertUser(ui);
 	}
 
 	@Override

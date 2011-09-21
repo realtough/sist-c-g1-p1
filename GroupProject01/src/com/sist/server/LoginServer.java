@@ -5,21 +5,21 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.sist.common.Tools;
-import com.sist.common.UserInfoManager;
+import com.sist.common.*;
 
 //최초 입력된 아이디와 패스워드를 기반으로 UIM을 이용 유저정보 조회
 //정보 인증시 닉네임을 받아 LobbyLogin에 전달
-public class LoginServer extends Thread {
+public class LoginServer extends Thread implements G1Server{
 	ServerForm g1Server;
+	
 	String userID;
 	String userPW;
-	String dbID;
-	String dbPW;
 	String tempName;	
 
+	boolean isServerOn = false;
+	boolean isOperatorOn = false;
 	// 유저정보 처리를 담당할 uiManager객체 생성
-	private UserInfoManager uiManager = new UserInfoManager();
+	private UserInfoManagerDAO uiManager = new UserInfoManagerDAO();
 	private HashMap<String, DataOutputStream> tempUserList = new HashMap<String, DataOutputStream>();
 
 	public LoginServer(ServerForm g1Server) {
@@ -28,25 +28,36 @@ public class LoginServer extends Thread {
 
 	// 유저 가입, 로그인등의 유저정보를 다룰 별도 서버 생성
 	private void loginServerStart() {
+		isServerOn = true;
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
 			serverSocket = new ServerSocket(Tools.portLoginServer);
 			InetAddress inet = InetAddress.getLocalHost();
 			g1Server.appendServerLog("[로그인서버] " + inet.getHostAddress() + ":"
-					+ serverSocket.getLocalPort());
-
+					+ serverSocket.getLocalPort() + " 오픈");
+			ServerOperator soThread;
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
+				if(!isServerOn){									
+					serverSocket.close();
+					break;
+				}
 				socket = serverSocket.accept();
-				ServerOperator soThread = new ServerOperator(socket);
+				soThread = new ServerOperator(socket);
 				soThread.start();
 			}
+			g1Server.appendServerLog("[로그인서버] " + inet.getHostAddress() + ":"
+					+ serverSocket.getLocalPort() + " 종료");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
+	
+	public void stopServer(){
+		isServerOn = false;
+	}
+	
 	public void run() {
 		loginServerStart();
 	}
@@ -56,7 +67,7 @@ public class LoginServer extends Thread {
 		Socket socket;
 		DataInputStream dis;
 		DataOutputStream dos;
-		boolean isOperatorOn = true;
+//		boolean isOperatorOn = true;
 		
 		public ServerOperator(Socket socket) {
 			this.socket = socket;
@@ -93,6 +104,8 @@ public class LoginServer extends Thread {
 					g1Server.appendServerLog(name + " 로그인 실패 (아이디 틀림)");
 					break;
 				}
+			} else if(temp[0].equals("/regist")){
+				//가입처리
 			}
 		}
 
@@ -112,8 +125,9 @@ public class LoginServer extends Thread {
 				}
 			}
 		}
-
+		
 		public void run() {
+			isOperatorOn = true;
 			String name = null;
 			try {
 				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장

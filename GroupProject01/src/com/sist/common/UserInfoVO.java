@@ -3,7 +3,7 @@ package com.sist.common;
 import java.util.Date;
 
 //유저정보 클래스
-public class UserInfo {
+public class UserInfoVO {
 	private String userID;
 	private String userPW;
 	private String userName;
@@ -12,11 +12,11 @@ public class UserInfo {
 	private Date registerDate;
 	private String userNickname;
 	
-	public UserInfo(){
+	public UserInfoVO(){
 		
 	}
 
-	public UserInfo(String userID, String userPW, String userName,
+	public UserInfoVO(String userID, String userPW, String userName,
 			Date birthDate, int sex, Date registerDate, String userNickname) {
 		super();
 		this.userID = userID;

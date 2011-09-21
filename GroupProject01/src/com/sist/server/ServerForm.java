@@ -13,7 +13,7 @@ import com.sist.common.Tools;
 import com.sist.common.UserInfoManager;
 
 //로그인과 유저정보 관리를 별도 서버로 분리할지 고려할것
-public class G1GameServer extends JFrame implements ActionListener{	
+public class ServerForm extends JFrame implements ActionListener{	
 	Dimension dSize = new Dimension(640, 600);
 	Dimension dPosition = new Dimension(Tools.centerX - dSize.width / 2,
 			Tools.centerY - dSize.height / 2);
@@ -31,9 +31,9 @@ public class G1GameServer extends JFrame implements ActionListener{
 	private JMenuItem jmClose = new JMenuItem("종료");
 
 	LoginServer liServer = new LoginServer(this);
-	ChattingServer ctServer = new ChattingServer(this);
+	MainServer ctServer = new MainServer(this);
 	
-	public G1GameServer() {
+	public ServerForm() {
 		jbScrollBar = jsPane.getVerticalScrollBar();
 		jtaServerLog.setEditable(false);
 
@@ -66,7 +66,7 @@ public class G1GameServer extends JFrame implements ActionListener{
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		new G1GameServer();
+		new ServerForm();
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class G1GameServer extends JFrame implements ActionListener{
 			isServerOn = false;
 		}
 		if (ob == jtfServerInput) {
-			ctServer.sendToAll("서버", jtfServerInput.getText());
+//			ctServer.sendToAll("서버", jtfServerInput.getText());			
 			jtfServerInput.setText("");
 		}
 	}

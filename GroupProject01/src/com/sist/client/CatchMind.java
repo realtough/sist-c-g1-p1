@@ -12,7 +12,7 @@ public class CatchMind extends JFrame  {
 	JButton delete,alldelete,outbt;
 	JTextPane chatting;
 	JPanel board;//그림판
-	
+	 
 	
 	
 	public CatchMind(){
@@ -34,6 +34,7 @@ public class CatchMind extends JFrame  {
 		
 		JPanel p2=new JPanel();	
 		p2.setLayout(new BorderLayout());
+	//	p2.setOpaque(false);
 		p2.add("Center",pb);
 		p2.add("South",p1);
 		
@@ -69,23 +70,32 @@ public class CatchMind extends JFrame  {
 	
 	
 	class PaintBoard extends JPanel implements MouseMotionListener {
+		
 		int x=0;
 		int y=0;
-		BufferedImage image = new BufferedImage(625, 530, BufferedImage.TYPE_INT_RGB); 
+		BufferedImage image = new BufferedImage(625, 530,2);	
 		Graphics2D imageG = image.createGraphics(); 
 		
+		
 		public PaintBoard(){
-						
-//			gImg.drawString("왼쪽버튼을 누른 채로 마우스를 움직여보세요.",10,60);			
-			repaint();	
+			imageG.setColor(Color.yellow);//글씨색
+			imageG.drawString("왼쪽버튼을 누른 채로 마우스를 움직여보세요.",10,60);
+			imageG.fillRect(0, 0, 625, 530);
+			
+			
+		
+			repaint();
+			imageG.setColor(Color.blue);
 			addMouseMotionListener(this);
 			
 		}	
 	
 		 public void paintComponent(Graphics g){
 			   super.paintComponent(g);   
-			   Graphics2D tempg = (Graphics2D)g;
-			   tempg.drawImage(image, 0, 0, this);			   
+			   Graphics2D tempg = (Graphics2D)g;			   
+			   tempg.drawImage(image, 0, 0, this);
+			  
+			   
 			  }
 		 
 		/*public void paintComponent (Graphics g){     //패인트
@@ -101,18 +111,18 @@ public class CatchMind extends JFrame  {
 	public void mouseDragged(MouseEvent me) {   //마우스 드래그 오버로딩
 		if(me.getModifiersEx()!=MouseEvent.BUTTON1_DOWN_MASK)return;//마우스 왼쪽만 클릭 된다!
 		imageG.drawLine(x, y, me.getX(), me.getY());
-//		System.out.println(x+":"+y);
 		x=me.getX();
 		y=me.getY();
 		repaint();
+		
 		
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent me) {
-//		System.out.println(x+":"+y);
 		x=me.getX();
-		y=me.getY();	
+		y=me.getY();
+		
 	}
 	
 }

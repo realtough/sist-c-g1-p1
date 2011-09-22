@@ -85,7 +85,7 @@ public class CatchMind extends JFrame  {
 		}	
 	
 		 public void paint(Graphics g){
-			  // super.paintComponent(g);   
+			   super.paintComponent(g);   
 			   g.drawOval(x, y, 10, 10);  
 			   setBackground(Color.yellow);
 			  }

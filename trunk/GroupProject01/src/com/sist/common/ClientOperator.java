@@ -7,7 +7,7 @@ import com.sist.client.LobbyMain;
 
 public class ClientOperator extends Thread {
 	LobbyMain g1Lobby;
-	private boolean isOperatorOn = false;
+	private boolean isOperatorOn;
 	private String inputString = "";
 	private String outputString = "";
 	String userName;
@@ -19,15 +19,11 @@ public class ClientOperator extends Thread {
 		this.g1Lobby = g1Lobby;
 		this.userName = userName;
 		this.socket = socket;
-		startOperator();
-	}
-
-	public void startOperator() {
 		isOperatorOn = true;
 		crThread = new ClientReceiver(socket);
 		csThread = new ClientSender(userName, socket);
-		crThread.start();
-		csThread.start();
+//		crThread.start();
+//		csThread.start();
 	}
 
 	public void stopOperator() {
@@ -50,8 +46,10 @@ public class ClientOperator extends Thread {
 	public void receiveMessage() {		
 		String msgtemp[] = inputString.split("@");
 		if (msgtemp[0].equals("[로그인서버]")) {
+			System.out.println("to log"+inputString);
 			g1Lobby.lLogin.classfyMessage(inputString);
 		} else {			
+			System.out.println("to chat"+inputString);
 			g1Lobby.classfyMessage(inputString);
 		}
 		inputString = "";
@@ -59,27 +57,19 @@ public class ClientOperator extends Thread {
 
 	public void run() {		
 		System.out.println("Operator Start");
-		try {
-			sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		crThread.start();
+		csThread.start();
+
 		while (true) {
-			if (!isOperatorOn) {
-				break;
-			}
+//			if (!isOperatorOn) {
+//				System.out.println("Operator Break");
+//				break;
+//			}
 			if (inputString.length() != 0) {
 				receiveMessage();
 			}
 		}
-		try {
-			sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Operator stop");
+//		System.out.println("Operator stop");
 	}
 
 	class ClientReceiver extends Thread {
@@ -105,7 +95,7 @@ public class ClientOperator extends Thread {
 
 		public void run() {
 			try {
-				sleep(500);
+				sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -122,12 +112,6 @@ public class ClientOperator extends Thread {
 				// TODO: handle exception
 				ioe.printStackTrace();			
 			} 
-			try {
-				sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 			System.out.println("Receiver stop");
 		}
 	}// ClientReceiver
@@ -163,7 +147,7 @@ public class ClientOperator extends Thread {
 
 		public void run() {
 			try {
-				sleep(500);
+				sleep(100);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -185,12 +169,6 @@ public class ClientOperator extends Thread {
 					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				sleep(100);
-			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

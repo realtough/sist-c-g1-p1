@@ -15,7 +15,8 @@ public class LobbyAvatar extends JFrame{
 	ImageIcon female04 = new ImageIcon(".\\image\\avatar\\female04.gif");		
 	JButton jbTest = new JButton(male01);
 	 				
-	public LobbyAvatar(){				
+	public LobbyAvatar(){		
+		jbTest.setIcon(male02);
 		add(jbTest);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(110, 185);

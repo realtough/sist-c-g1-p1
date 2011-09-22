@@ -57,9 +57,10 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	JButton jbGame3 = new JButton("게임3");
 	JButton jbGame4 = new JButton("게임4");
 
-	ClientOperator coThread;
+	ClientOperator chatThread;
+//	ClientOperator loginThread;
 //	public String userName;
-	public Socket socket;
+//	public Socket socket;
 
 	public LobbyMain() {
 		super("Mini Game");
@@ -142,9 +143,9 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	// 서버아이피와 포트는 Tools클래스에서 정의
 	public void startChat(String userName) {
 		try {
-			socket = new Socket(Tools.serverIp, Tools.portChatServer);
-			coThread = new ClientOperator(this, userName, socket);
-			coThread.start();
+			Socket socket = new Socket(Tools.serverIp, Tools.portChatServer);
+			chatThread = new ClientOperator(this, userName, socket);
+			chatThread.start();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,12 +155,13 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		}
 	}
 
+	/*
 	public void startLogin() {
 		try {
 			socket = new Socket(Tools.serverIp, Tools.portLoginServer);
 			String userName = socket.getLocalAddress() + ":" + socket.getLocalPort();
-			ClientOperator coThread = new ClientOperator(this, userName, socket);
-			coThread.start();
+			loginThread = new ClientOperator(this, userName, socket);
+			loginThread.start();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,6 +170,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			e.printStackTrace();
 		}
 	}
+	*/
 
 	public void appendChatLog(String msg) {
 		jtaChatList.append(msg + "\n");
@@ -190,7 +193,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			System.exit(0);
 		}
 		if (ob == jtfChatInput) {
-			coThread.sendMessage(jtfChatInput.getText().trim());
+			chatThread.sendMessage(jtfChatInput.getText().trim());
 			jtfChatInput.setText("");
 		}
 	}

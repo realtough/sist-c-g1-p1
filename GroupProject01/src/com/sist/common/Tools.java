@@ -11,7 +11,6 @@ public class Tools {
 	public static String serverIp = "211.238.142.116";
 	public static int portChatServer = 10000;
 	public static int portLoginServer = 10001;
-	private boolean sendSuspend = true;
 	
 	//그리드백 레이아웃 용 메소드
 	public static void insert(Container cnt, Component cmp, int x, int y,

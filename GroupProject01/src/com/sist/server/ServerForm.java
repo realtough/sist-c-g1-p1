@@ -97,7 +97,8 @@ public class ServerForm extends JFrame implements ActionListener {
 			appendServerLog("서버가 종료 되었습니다");
 			isServerOn = false;
 			liServer.stopServer();			
-			mnServer.isServerOn = false;
+//			mnServer.isServerOn = false;
+//			mnServer.stopServerOperator();
 		} else if (ob == jmSave) {
 
 		} else if (ob == jmClear) {

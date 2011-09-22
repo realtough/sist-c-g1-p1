@@ -1,6 +1,5 @@
 package com.sist.client;
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.*;
 public class CatchMind extends JFrame implements MouseMotionListener {
@@ -8,12 +7,12 @@ public class CatchMind extends JFrame implements MouseMotionListener {
 	JTextField answer,write,id,sex;
 	JButton delete,alldelete,outbt;
 	JTextPane chatting;
-	JPanel board;
+	JPanel board;//그림판
 	
 	int x=0;
 	int y=0;
-	Image img;
-	Graphics gImg;
+	Image img=null;
+	Graphics gImg=null;
 	
 	public CatchMind(){
 		answer=new JTextField();  //정답 텍스트 필드
@@ -56,12 +55,15 @@ public class CatchMind extends JFrame implements MouseMotionListener {
 		setVisible(true);	
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		
+				
 		img=createImage(625,530);
 		gImg=img.getGraphics();
-		gImg.drawString("왼쪽버튼을 누른 채로 마우스를 움직여보세요.",10,30);
+		gImg.drawString("왼쪽버튼을 누른 채로 마우스를 움직여보세요.",10,60);
 		repaint();	
 		
-		board.addMouseMotionListener(this);
+	//	board.setBackground(Color.yellow);
+		addMouseMotionListener(this);
 			
 	}
 	public static void main(String[] args) {
@@ -70,15 +72,17 @@ public class CatchMind extends JFrame implements MouseMotionListener {
 		}
 	
 	public void paint (Graphics g){     //패인트
-		if(img==null)return;
-		g.drawImage(img, 2, 30, board);
-		board.setBackground(Color.yellow); 
+		super.paintComponents(g);
+		if(img!=null)		 
+		g.drawImage(img, 0, 0,board);
+		
+		
 	
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent me) {   //마우스 드래그 오버로딩
-		
+		if(me.getModifiersEx()!=MouseEvent.BUTTON1_DOWN_MASK)return;//마우스 왼쪽만 클릭 된다!
 		gImg.drawLine(x, y, me.getX(), me.getY());
 		x=me.getX();
 		y=me.getY();

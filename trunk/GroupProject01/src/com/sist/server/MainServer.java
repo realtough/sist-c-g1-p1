@@ -90,7 +90,7 @@ public class MainServer extends Thread implements G1Server {
 				try {
 					DataOutputStream dos = (DataOutputStream) clients
 							.get(clientsName.next());
-					dos.writeUTF("/sys " + connectedUser);
+					dos.writeUTF("[접속유저]@" + connectedUser);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

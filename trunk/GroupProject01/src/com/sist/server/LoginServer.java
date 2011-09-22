@@ -89,7 +89,7 @@ public class LoginServer extends Thread implements G1Server{
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
 					// sendTo(유저, 메시지)
-					sendTo(name, "11 " + result[1]);
+					sendTo(name, "11@" + result[1]);
 					g1Server.appendServerLog(name + " 로그인 성공");
 					isOperatorOn = false;
 					break;
@@ -117,7 +117,7 @@ public class LoginServer extends Thread implements G1Server{
 					if (name.equals(to)) {
 						DataOutputStream dos = (DataOutputStream) tempUserList
 								.get(name);
-						dos.writeUTF("[" + "로그인서버" + "] " + msg);
+						dos.writeUTF("[" + "로그인서버" + "]@" + msg);
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -130,7 +130,6 @@ public class LoginServer extends Thread implements G1Server{
 			isOperatorOn = true;
 			String name = null;
 			try {
-				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
 				name = dis.readUTF();
 				tempUserList.put(name, dos);
 				g1Server.appendServerLog(name + " 로그인 세션 열림");
@@ -138,13 +137,13 @@ public class LoginServer extends Thread implements G1Server{
 					if (!isOperatorOn) {
 						break;
 					}
-					classfyMessage(name, dis.readUTF());
+					classfyMessage(name, dis.readUTF());					
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
-				sendTo(name, " 로그인 서버와 연결 종료");
+//				sendTo(name, " 로그인 서버와 연결 종료");
 				g1Server.appendServerLog(name + " 로그인 세션 종료");
 			}
 		}

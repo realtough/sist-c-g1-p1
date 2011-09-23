@@ -146,6 +146,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			chatThread = new ClientOperator(this, userName, socket);
 			chatThread.start();
+			chatThread.sendMessage("/first");
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -154,23 +155,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			e.printStackTrace();
 		}
 	}
-
-	/*
-	public void startLogin() {
-		try {
-			socket = new Socket(Tools.serverIp, Tools.portLoginServer);
-			String userName = socket.getLocalAddress() + ":" + socket.getLocalPort();
-			loginThread = new ClientOperator(this, userName, socket);
-			loginThread.start();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
 
 	public void appendChatLog(String msg) {
 		jtaChatList.append(msg + "\n");
@@ -200,19 +184,19 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public void classfyMessage(String msg) {
 		String msgtemp[] = msg.split("@");
-		System.out.println("LM "+msg);
+//		System.out.println("LM "+msg);
 		if (msgtemp[0].equals("[접속유저]")) {
 			// 접속유저 목록은 "|"를 식별자로 하나의 문자열로 합쳐져 있으므로 이를 분리한다
 			String userList[] = msgtemp[1].split("\\|");
 			// 테이블은 부분 수정이 불가능하므로 테이블 삭제후 다시 전체 유저목록을 삽입한다
-			System.out.println(msgtemp[1]);
-			if (dtModel.getRowCount() != 0) {
+//			System.out.println(msgtemp[1]);
+			if (dtModel.getRowCount() > 0) {
 				for (int i = dtModel.getRowCount() - 1; i >= 0; i--) {
 					dtModel.removeRow(i);				
 				}
 			}
-			for (int i = 0; i < userList.length; i++) {
-				System.out.println(userList[i]);
+			for (int i = 0; i < userList.length; i++) {				
+//				System.out.println(userList[i] + "테이블 입력");
 				String temp[] = { userList[i], "신병" };				
 				dtModel.addRow(temp);
 			}

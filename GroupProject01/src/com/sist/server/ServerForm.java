@@ -32,10 +32,16 @@ public class ServerForm extends JFrame implements ActionListener {
 	private JMenu jmLog = new JMenu("로그");
 	private JMenuItem jmSave = new JMenuItem("저장");
 	private JMenuItem jmClear = new JMenuItem("삭제");
-	LoginServer liServer = new LoginServer(this);
-	MainServer mnServer = new MainServer(this);
+	private JMenu jmUser = new JMenu("유저");
+	private JMenuItem jmAllUser = new JMenuItem("전체유저");
+	private JMenuItem jmConnUser = new JMenuItem("접속유저");
+	private JMenuItem jmSendUser = new JMenuItem("정보전송");
+	LoginServer liServer;
+	MainServer mnServer;
 
 	public ServerForm() {
+		liServer = new LoginServer(this);
+		mnServer = new MainServer(this);
 		jbScrollBar = jsPane.getVerticalScrollBar();
 		jtaServerLog.setEditable(false);
 
@@ -49,7 +55,16 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmb.add(jmLog);
 		jmLog.add(jmSave);
 		jmLog.add(jmClear);
-
+		jmb.add(jmUser);
+		jmUser.add(jmAllUser);
+		jmUser.add(jmConnUser);
+		jmUser.add(jmSendUser);
+		
+		// 임시 사용불능 기능들
+		jmSave.setEnabled(false);
+		jmClose.setEnabled(false);
+		jmUser.setEnabled(false);
+		
 		// 프레임 설정
 		setJMenuBar(jmb);
 		setTitle("G1 Server");
@@ -86,8 +101,7 @@ public class ServerForm extends JFrame implements ActionListener {
 		Object ob = e.getSource();
 		if (ob == jmStart) {
 			if (!isServerOn) {
-				isServerOn = true;
-				appendServerLog("서버가 시작 되었습니다");
+				isServerOn = true;				
 				liServer.start();
 				mnServer.start();
 			} else{
@@ -96,14 +110,16 @@ public class ServerForm extends JFrame implements ActionListener {
 		} else if (ob == jmClose) {
 			appendServerLog("서버가 종료 되었습니다");
 			isServerOn = false;
-			liServer.stopServer();			
-//			mnServer.isServerOn = false;
+//			liServer.stopServer();			
 //			mnServer.stopServerOperator();
 		} else if (ob == jmSave) {
-
+			//로그를 파일로 저장
 		} else if (ob == jmClear) {
 			jtaServerLog.setText("");
+		} else if (ob == jmSendUser) {
+			
 		}
+		
 		if (ob == jtfServerInput) {
 			// mnServer.sendToAll("서버", jtfServerInput.getText());
 			jtfServerInput.setText("");

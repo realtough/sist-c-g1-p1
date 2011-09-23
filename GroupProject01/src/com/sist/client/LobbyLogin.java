@@ -25,7 +25,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	private JButton jbAccept = new JButton("로그인");
 	private JButton jbCancel = new JButton("나가기");
 	private JButton jbRegister = new JButton("가입");
-	
+
 	LobbyMain lobby;
 	String id;
 	String pw;
@@ -54,6 +54,10 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setBounds(dPosition.width, dPosition.height, dSize.width, dSize.height);
 
+		//입력부분을 잠그고 쓰레드가 시작된후 Enable한다
+		jtfID.setEnabled(false);
+		jpfPW.setEnabled(false);
+		
 		// 이벤트 등록
 		jtfID.addActionListener(this);
 		jpfPW.addActionListener(this);
@@ -67,9 +71,13 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	public void lobbyLoginStart() {
 		try {
 			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
-			userName = socket.getLocalAddress()+":"+socket.getLocalPort();			
+			userName = (socket.getLocalAddress() + ":" + socket.getLocalPort())
+					.replace("/", "");
 			loginThread = new ClientOperator(lobby, userName, socket);
 			loginThread.start();
+//			Thread.sleep(100);
+			jtfID.setEnabled(true);
+			jpfPW.setEnabled(true);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -77,15 +85,21 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		/*
+		catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 	}
 
 	private void userLogin() {
 		// 아이디가 없을때
 		// 아이디는 맞지만 비밀번호가 틀릴때
 		// 서버와 통신 필요
-		if(checkInfo()){
+		if (checkInfo()) {
 			idpwMessage = "/login " + id + " " + pw;
-			loginThread.sendMessage(idpwMessage);			
+			loginThread.sendMessage(idpwMessage);
 		}
 	}
 
@@ -93,10 +107,10 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		boolean isCorrect = false;
 		id = jtfID.getText().trim();
 		pw = String.valueOf(jpfPW.getPassword());
-		
+
 		if (id.length() == 0 || pw.length() == 0) {
 			JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력하세요");
-		}else{
+		} else {
 			isCorrect = true;
 		}
 		return isCorrect;
@@ -107,7 +121,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
 			userLogin();
-		} else if (ob == jbCancel) {			
+		} else if (ob == jbCancel) {
 			lobby.startChat(userName);
 			loginThread.stopOperator();
 			setVisible(false);
@@ -122,21 +136,21 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		}
 	}
 
-	public void classfyMessage(String msg) {				
+	public void classfyMessage(String msg) {
 		String msgtemp[] = msg.split("@");
-//		System.out.println(msg);
+		// System.out.println(msg);
 		if (msgtemp[0].equals("[로그인서버]")) {
-			switch(Integer.parseInt(msgtemp[1])){
-			case 11:	//아이디와 패스워드 일치 로그인 성공									
-				loginThread.stopOperator();
+			switch (Integer.parseInt(msgtemp[1])) {
+			case 11: // 아이디와 패스워드 일치 로그인 성공				
 				lobby.startChat(msgtemp[2]);
 				setVisible(false);
+				loginThread.stopOperator();				
 				dispose();
 				break;
-			case 12:				
-				JOptionPane.showMessageDialog(this, "비밀번호가 틀립니다");					
+			case 12:
+				JOptionPane.showMessageDialog(this, "비밀번호가 틀립니다");
 				break;
-			case 22:				
+			case 22:
 				JOptionPane.showMessageDialog(this, "아이디가 틀립니다");
 				break;
 			}

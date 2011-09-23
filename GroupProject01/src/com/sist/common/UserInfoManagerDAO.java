@@ -5,11 +5,26 @@ import java.util.Date;
 import java.sql.*;
 
 //DB∂˚ ≈ÎΩ≈« ø‰
-public class UserInfoManagerDAO {
-	private final String ORACLE_URL = "";
+public class UserInfoManagerDAO {	
+
+	private final String ORACLE_URL = "jdbc:oracle:this:@localhost:1521:XE";
+	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";		
+	private final String ORACLE_ID = "hoon";
+	private final String ORACLE_PW = "sistc";
+	private Connection dbConnection;
+	private PreparedStatement pStatement;
+	
 	HashMap<Integer, UserInfoVO> alluserList = new HashMap<Integer, UserInfoVO>();
 
 	public UserInfoManagerDAO() {
+		
+		try {
+			Class.forName(ORACLE_DRIVER);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		alluserList.put(getMaxNumber(), new UserInfoVO("hoon", "sist", "¡∂∫¥»∆",
 				new Date(), 1, new Date(), "»∆¿Ã"));
 		alluserList.put(getMaxNumber(), new UserInfoVO("ho", "sist", "±Ë¿Á»£",
@@ -22,6 +37,24 @@ public class UserInfoManagerDAO {
 				new Date(), 1, new Date(), "øÌ¿Ã"));
 	}
 
+	public void connectDB(){
+		try {
+			dbConnection = DriverManager.getConnection(ORACLE_URL, ORACLE_ID, ORACLE_PW);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void disconnectDB(){
+		try {
+			if(dbConnection != null) dbConnection.close();
+			if(pStatement != null) pStatement.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}
+	}
+	
 	// »∏ø¯ √ﬂ∞°
 	public void insertUser(UserInfoVO ui) {
 		alluserList.put(getMaxNumber(), ui);

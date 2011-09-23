@@ -3,7 +3,6 @@ package com.sist.client;
 import java.io.*;
 import java.net.Socket;
 
-
 public class ClientOperator extends Thread {
 	LobbyMain g1Lobby;
 	private boolean isOperatorOn;
@@ -21,16 +20,18 @@ public class ClientOperator extends Thread {
 		isOperatorOn = true;
 		crThread = new ClientReceiver(socket);
 		csThread = new ClientSender(userName, socket);
-//		crThread.start();
-//		csThread.start();
+		// crThread.start();
+		// csThread.start();
 	}
 
 	public void stopOperator() {
 		try {
+			Thread.sleep(1000);
 			crThread.dis.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block			
 		}
 		crThread.stopReceiver();
 		csThread.stopSender();
@@ -42,33 +43,34 @@ public class ClientOperator extends Thread {
 		csThread.unsuspendSender();
 	}
 
-	public void receiveMessage() {		
+	public void receiveMessage() {
 		String msgtemp[] = inputString.split("@");
+		System.out.println(inputString);
 		if (msgtemp[0].equals("[로그인서버]")) {
-			System.out.println("to log"+inputString);
+			System.out.println("to log" + inputString);
 			g1Lobby.lLogin.classfyMessage(inputString);
-		} else {			
-			System.out.println("to chat"+inputString);
+		} else {
+			System.out.println("to chat" + inputString);
 			g1Lobby.classfyMessage(inputString);
 		}
 		inputString = "";
 	}
 
-	public void run() {		
-		System.out.println("Operator Start");
+	public void run() {
+		// System.out.println("Operator Start");
 		crThread.start();
 		csThread.start();
 
 		while (true) {
-//			if (!isOperatorOn) {
-//				System.out.println("Operator Break");
-//				break;
-//			}
+			// if (!isOperatorOn) {
+			// System.out.println("Operator Break");
+			// break;
+			// }
 			if (inputString.length() != 0) {
 				receiveMessage();
 			}
 		}
-//		System.out.println("Operator stop");
+		// System.out.println("Operator stop");
 	}
 
 	class ClientReceiver extends Thread {
@@ -99,19 +101,19 @@ public class ClientOperator extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("Receiver Start");
-			try {				
-				while (dis != null) {					
-					if (!isReceiverOn) {					
+			// System.out.println("Receiver Start");
+			try {
+				while (dis != null) {
+					if (!isReceiverOn) {
 						break;
-					}				
-					inputString = dis.readUTF();					
+					}
+					inputString = dis.readUTF();
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
-				ioe.printStackTrace();			
-			} 
-			System.out.println("Receiver stop");
+				ioe.printStackTrace();
+			}
+			// System.out.println("Receiver stop");
 		}
 	}// ClientReceiver
 
@@ -151,10 +153,10 @@ public class ClientOperator extends Thread {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			System.out.println("Sender Start");
+			// System.out.println("Sender Start");
 			try {
 				if (dos != null) {
-					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다					
+					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 				}
 
 				while (dos != null) {
@@ -162,6 +164,7 @@ public class ClientOperator extends Thread {
 						break;
 					}
 					if (!isSenderSuspend) {
+						System.out.println(outputString);
 						dos.writeUTF(outputString);
 						outputString = "";
 						isSenderSuspend = true;
@@ -171,7 +174,7 @@ public class ClientOperator extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println("Sender stop");
+			// System.out.println("Sender stop");
 		}
 	}// ClientSender
 }// class

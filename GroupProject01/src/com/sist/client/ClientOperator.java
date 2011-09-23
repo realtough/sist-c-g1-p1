@@ -48,10 +48,10 @@ public class ClientOperator extends Thread {
 		System.out.println(inputString);
 		if (msgtemp[0].equals("[로그인서버]")) {
 			System.out.println("to log" + inputString);
-			g1Lobby.lLogin.classfyMessage(inputString);
+//			g1Lobby.lLogin.classfyMessage(inputString);
 		} else {
 			System.out.println("to chat" + inputString);
-			g1Lobby.classfyMessage(inputString);
+//			g1Lobby.classfyMessage(inputString);
 		}
 		inputString = "";
 	}

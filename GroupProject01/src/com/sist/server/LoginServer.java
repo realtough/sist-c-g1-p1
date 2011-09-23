@@ -2,13 +2,14 @@ package com.sist.server;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import com.sist.common.*;
 
 //최초 입력된 아이디와 패스워드를 기반으로 UIM을 이용 유저정보 조회
 //정보 인증시 닉네임을 받아 LobbyLogin에 전달
-public class LoginServer extends Thread implements G1Server{
+public class LoginServer extends Thread {
 	ServerForm g1Server;
 	String userID;
 	String userPW;
@@ -18,11 +19,9 @@ public class LoginServer extends Thread implements G1Server{
 
 	// 유저정보 처리를 담당할 uiManager객체 생성
 	private UserInfoManagerDAO uiManager = new UserInfoManagerDAO();
-	private HashMap<String, DataOutputStream> tempUserList;
+	private HashMap<String, DataOutputStream> tempUserList = new HashMap<String, DataOutputStream>();
 
 	public LoginServer(ServerForm g1Server) {
-		tempUserList = new HashMap<String, DataOutputStream>();
-		Collections.synchronizedMap(tempUserList);
 		this.g1Server = g1Server;
 	}
 
@@ -33,12 +32,11 @@ public class LoginServer extends Thread implements G1Server{
 		try {
 			serverSocket = new ServerSocket(Tools.LOGIN_SERVER_PORT);
 			InetAddress inet = InetAddress.getLocalHost();
-			g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + inet.getHostAddress() + ":"
+			g1Server.appendServerLog("[로그인서버] " + inet.getHostAddress() + ":"
 					+ serverSocket.getLocalPort());
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				socket = serverSocket.accept();
-//				System.out.println("Login Connected");
 				ServerOperator soThread = new ServerOperator(socket);
 				soThread.start();
 			}
@@ -52,18 +50,18 @@ public class LoginServer extends Thread implements G1Server{
 		loginServerStart();
 	}
 
-	private class ServerOperator extends Thread {
+	class ServerOperator extends Thread {
 
-		Socket sockett;
+		Socket socket;
 		DataInputStream dis;
 		DataOutputStream dos;
 		boolean isOperatorOn = true;
 		
 		public ServerOperator(Socket socket) {
-			this.sockett = socket;
+			this.socket = socket;
 			try {
-				dis = new DataInputStream(sockett.getInputStream());
-				dos = new DataOutputStream(sockett.getOutputStream());
+				dis = new DataInputStream(socket.getInputStream());
+				dos = new DataOutputStream(socket.getOutputStream());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -79,19 +77,19 @@ public class LoginServer extends Thread implements G1Server{
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
 					// sendTo(유저, 메시지)
-					sendTo(name, "11@" + result[1]);
-					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 성공");
+					sendTo(name, "11 " + result[1]);
+					g1Server.appendServerLog(name + " 로그인 성공");
 					isOperatorOn = false;
 					break;
 				case 12:
 					// 아이디 일치, 패스워드 틀릴때 (경고창 띄운후 재시도)
 					sendTo(name, "12");
-					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 실패 (비밀번호 틀림)");
+					g1Server.appendServerLog(name + " 로그인 실패 (비밀번호 틀림)");
 					break;
 				case 22:
 					// 아이디 없을때 (경고창 띄운후 재시도)
 					sendTo(name, "22");
-					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 실패 (아이디 틀림)");
+					g1Server.appendServerLog(name + " 로그인 실패 (아이디 틀림)");
 					break;
 				}
 			}
@@ -105,7 +103,7 @@ public class LoginServer extends Thread implements G1Server{
 					if (name.equals(to)) {
 						DataOutputStream dos = (DataOutputStream) tempUserList
 								.get(name);
-						dos.writeUTF("[" + "로그인서버" + "]@" + msg);
+						dos.writeUTF("[" + "로그인서버" + "] " + msg);
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -116,11 +114,11 @@ public class LoginServer extends Thread implements G1Server{
 
 		public void run() {
 			String name = null;
-			try { 
+			try {
+				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
 				name = dis.readUTF();
-				g1Server.appendServerLog("로그인:"+name);
 				tempUserList.put(name, dos);
-				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 열림");
+				g1Server.appendServerLog(name + " 로그인 세션 열림");
 				while (dis != null) {
 					if (!isOperatorOn) {
 						break;
@@ -132,7 +130,7 @@ public class LoginServer extends Thread implements G1Server{
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
 				sendTo(name, " 로그인 서버와 연결 종료");
-				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 종료");
+				g1Server.appendServerLog(name + " 로그인 세션 종료");
 			}
 		}
 	}// ServerOperator

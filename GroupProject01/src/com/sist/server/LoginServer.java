@@ -22,6 +22,8 @@ public class LoginServer extends Thread implements G1Server{
 	private UserInfoManagerDAO uiManager = new UserInfoManagerDAO();
 	private HashMap<String, DataOutputStream> tempUserList = new HashMap<String, DataOutputStream>();
 
+	ServerOperator soThread;
+	
 	public LoginServer(ServerForm g1Server) {
 		this.g1Server = g1Server;
 	}
@@ -32,17 +34,18 @@ public class LoginServer extends Thread implements G1Server{
 		ServerSocket serverSocket = null;
 		Socket socket = null;
 		try {
-			serverSocket = new ServerSocket(Tools.portLoginServer);
+			serverSocket = new ServerSocket(Tools.LOGIN_SERVER_PORT);
 			InetAddress inet = InetAddress.getLocalHost();
 			g1Server.appendServerLog("[로그인서버] " + inet.getHostAddress() + ":"
 					+ serverSocket.getLocalPort() + " 오픈");
-			ServerOperator soThread;
+//			ServerOperator soThread;
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				if(!isServerOn){									
 					serverSocket.close();
 					break;
-				}
+				}				
 				socket = serverSocket.accept();
+				System.out.println("Login Connected");
 				soThread = new ServerOperator(socket);
 				soThread.start();
 			}
@@ -56,6 +59,35 @@ public class LoginServer extends Thread implements G1Server{
 	
 	public void stopServer(){
 		isServerOn = false;
+	}
+	
+	private void classfyMessage(String name, String msg) {
+		String temp[] = msg.split(" ", 3);
+		if (temp[0].equals("/login")) {
+			String result[] = uiManager.verifyUser(temp[1], temp[2]).split(
+					" ", 2);
+			switch (Integer.parseInt(result[0])) {
+			case 11:
+				// 아이디와 패스워드 일치 (로그인)
+				// sendTo(유저, 메시지)
+//				sendTo(name, "11@" + result[1]);
+				g1Server.appendServerLog("[로그인서버] " + name + " 로그인 성공");
+				isOperatorOn = false;
+				break;
+			case 12:
+				// 아이디 일치, 패스워드 틀릴때 (경고창 띄운후 재시도)
+//				sendTo(name, "12");
+				g1Server.appendServerLog("[로그인서버] " + name + " 로그인 실패 (비밀번호 틀림)");
+				break;
+			case 22:
+				// 아이디 없을때 (경고창 띄운후 재시도)
+//				sendTo(name, "22");
+				g1Server.appendServerLog("[로그인서버] " + name + " 로그인 실패 (아이디 틀림)");
+				break;
+			}
+		} else if(temp[0].equals("/regist")){
+			//가입처리
+		}
 	}
 	
 	public void run() {
@@ -80,34 +112,7 @@ public class LoginServer extends Thread implements G1Server{
 			}
 		}
 
-		private void classfyMessage(String name, String msg) {
-			String temp[] = msg.split(" ", 3);
-			if (temp[0].equals("/login")) {
-				String result[] = uiManager.verifyUser(temp[1], temp[2]).split(
-						" ", 2);
-				switch (Integer.parseInt(result[0])) {
-				case 11:
-					// 아이디와 패스워드 일치 (로그인)
-					// sendTo(유저, 메시지)
-					sendTo(name, "11@" + result[1]);
-					g1Server.appendServerLog("[로그인서버] " + name + " 로그인 성공");
-					isOperatorOn = false;
-					break;
-				case 12:
-					// 아이디 일치, 패스워드 틀릴때 (경고창 띄운후 재시도)
-					sendTo(name, "12");
-					g1Server.appendServerLog("[로그인서버] " + name + " 로그인 실패 (비밀번호 틀림)");
-					break;
-				case 22:
-					// 아이디 없을때 (경고창 띄운후 재시도)
-					sendTo(name, "22");
-					g1Server.appendServerLog("[로그인서버] " + name + " 로그인 실패 (아이디 틀림)");
-					break;
-				}
-			} else if(temp[0].equals("/regist")){
-				//가입처리
-			}
-		}
+
 
 		private void sendTo(String to, String msg) {
 			Iterator<String> clientsName = tempUserList.keySet().iterator();

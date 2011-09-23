@@ -9,8 +9,10 @@ public class Tools {
 	public static int centerX = myTK.getScreenSize().width / 2;
 	public static int centerY = myTK.getScreenSize().height / 2;
 	public static String serverIp = "211.238.142.116";
-	public static int portChatServer = 10000;
-	public static int portLoginServer = 10001;
+	public static final int MAIN_SERVER_PORT = 10000;
+	public static final int LOGIN_SERVER_PORT = 10001;
+	public static final String LOGIN_SERVER_HEADER = "[로그인서버]";
+	public static final String MAIN_SERVER_HEADER = "[메인서버]";
 	
 	//그리드백 레이아웃 용 메소드
 	public static void insert(Container cnt, Component cmp, int x, int y,

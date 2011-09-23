@@ -1,4 +1,4 @@
-package com.sist.common;
+package com.sist.server;
 
 public interface G1Server {
 

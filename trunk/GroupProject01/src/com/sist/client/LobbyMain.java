@@ -143,7 +143,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	// 서버아이피와 포트는 Tools클래스에서 정의
 	public void startChat(String userName) {
 		try {
-			Socket socket = new Socket(Tools.serverIp, Tools.portChatServer);
+			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			chatThread = new ClientOperator(this, userName, socket);
 			chatThread.start();
 		} catch (UnknownHostException e) {
@@ -212,8 +212,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 				}
 			}
 			for (int i = 0; i < userList.length; i++) {
-				String temp[] = { userList[i], "신병" };
 				System.out.println(userList[i]);
+				String temp[] = { userList[i], "신병" };				
 				dtModel.addRow(temp);
 			}
 		} else {

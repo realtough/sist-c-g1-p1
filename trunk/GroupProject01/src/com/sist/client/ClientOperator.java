@@ -1,9 +1,8 @@
-package com.sist.common;
+package com.sist.client;
 
 import java.io.*;
 import java.net.Socket;
 
-import com.sist.client.LobbyMain;
 
 public class ClientOperator extends Thread {
 	LobbyMain g1Lobby;

@@ -34,8 +34,8 @@ public class MainServer extends Thread {
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				socket = serverSocket.accept();
-				System.out.println("Connected");
-				ServerOperator soThread = new ServerOperator(socket);
+				System.out.println("User Connected");
+				ServerOperator soThread = new ServerOperator(g1Server, socket);
 				soThread.start();
 			}
 		} catch (IOException e) {
@@ -48,6 +48,16 @@ public class MainServer extends Thread {
 		chatServerStart();
 	}
 
+	private void classfyMessage(String name, String msg) {
+		String temp[] = msg.split(" ", 3);
+		if (temp[0].equals("/w")) {
+//			sendTo(name, temp[1], temp[2]);
+		} else {
+//			sendToAll(name, msg);
+		}
+	}
+
+/*	
 	class ServerOperator extends Thread {
 
 		Socket socket;
@@ -142,9 +152,9 @@ public class MainServer extends Thread {
 				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
 				name = dis.readUTF();
 				clients.put(name, dos);
-				dos.writeUTF("접속하신것을 환영합니다");
-				sendToAll("서버", name + " 님이 입장 하셨습니다");
+//				dos.writeUTF("접속하신것을 환영합니다");
 				sendUserStatus();
+				sendToAll("서버", name + " 님이 입장 하셨습니다");				
 				// 입력 스트림 내용을 반복하여 클라이언트 전체에 전송한다
 				while (dis != null) {
 					classfyMessage(name, dis.readUTF());
@@ -160,4 +170,5 @@ public class MainServer extends Thread {
 			}
 		}
 	}//ServerOperator
+*/
 }//class

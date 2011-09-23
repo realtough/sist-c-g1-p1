@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import javax.swing.*;
 
-import com.sist.common.ClientOperator;
 import com.sist.common.Tools;
 
 //로그인 서버와 통신. 입력받은 아이디와 패스워드를 하나의 문자열로 합쳐 전송
@@ -67,7 +66,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 
 	public void lobbyLoginStart() {
 		try {
-			Socket socket = new Socket(Tools.serverIp, Tools.portLoginServer);
+			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
 			userName = socket.getLocalAddress()+":"+socket.getLocalPort();			
 			loginThread = new ClientOperator(lobby, userName, socket);
 			loginThread.start();

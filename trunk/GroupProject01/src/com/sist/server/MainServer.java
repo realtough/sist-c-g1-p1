@@ -4,16 +4,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import com.sist.common.Tools;
-
 //로그인 이후 모든 통신 처리. 전체, 1:1, 1:M 전달 기능 구현할것
 //클라이언트로부터 받은 닉네임을  키로, 전달받은 메시지를 값으로 받는 해쉬맵에
 //유저정보 저장
-public class MainServer extends Thread implements G1Server{
+public class MainServer extends Thread {
 	ServerForm g1Server;
 	boolean isServerOn = false;
-	ServerOperator soThread;
-	
 	private HashMap<String, DataOutputStream> clients; // 현재접속유저
 
 	public MainServer(ServerForm g1Server) {
@@ -33,13 +29,13 @@ public class MainServer extends Thread implements G1Server{
 			serverSocket = new ServerSocket(10000);
 			InetAddress inet = InetAddress.getLocalHost();
 			// 서버시작 알림. 아이피와 포트 표시
-			g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + inet.getHostAddress() + ":"
+			g1Server.appendServerLog("[채팅서버] " + inet.getHostAddress() + ":"
 			 + serverSocket.getLocalPort());			
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				socket = serverSocket.accept();
-//				System.out.println("Main Connected");
-				soThread = new ServerOperator(socket);
+				System.out.println("Connected");
+				ServerOperator soThread = new ServerOperator(socket);
 				soThread.start();
 			}
 		} catch (IOException e) {
@@ -51,8 +47,8 @@ public class MainServer extends Thread implements G1Server{
 	public void run() {
 		chatServerStart();
 	}
-	
-	private class ServerOperator extends Thread {
+
+	class ServerOperator extends Thread {
 
 		Socket socket;
 		DataInputStream dis;
@@ -60,7 +56,7 @@ public class MainServer extends Thread implements G1Server{
 
 		public ServerOperator(Socket socket) {
 			this.socket = socket;
-			g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + socket.getInetAddress() + ":" + socket.getPort()
+			g1Server.appendServerLog(socket.getInetAddress() + ":" + socket.getPort()
 			 + " 연결");
 			try {
 				dis = new DataInputStream(socket.getInputStream());
@@ -71,9 +67,8 @@ public class MainServer extends Thread implements G1Server{
 			}
 		}
 
-		public void sendUserStatus() {
-			g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + "현재 접속자 수는 : " + clients.size() + "명 입니다");
-			g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER+"접속 유저 목록 전송");
+		private void sendUserStatus() {
+			g1Server.appendServerLog("현재 접속자 수는 : " + clients.size() + "명 입니다");
 			// 접속한 유저 상황에 변동이 있을경우 (입장, 퇴장시)
 			// 새 접속 유저정보를 전체에 전송한다
 			Iterator<String> clientsName = clients.keySet().iterator();
@@ -87,12 +82,10 @@ public class MainServer extends Thread implements G1Server{
 				try {
 					DataOutputStream dos = (DataOutputStream) clients
 							.get(clientsName.next());
-					dos.writeUTF("[접속유저]@" + connectedUser);
-					g1Server.appendServerLog("[접속유저]@" + connectedUser);
+					dos.writeUTF("/sys " + connectedUser);				
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-//					e.printStackTrace();
-					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + "비정상 연결 종료");
+					e.printStackTrace();
 				}
 			}		
 		}
@@ -135,17 +128,10 @@ public class MainServer extends Thread implements G1Server{
 		}
 		
 		private void classfyMessage(String name, String msg) {
-			g1Server.appendServerLog(name+":"+msg);
 			String temp[] = msg.split(" ", 3);
 			if (temp[0].equals("/w")) {
 				sendTo(name, temp[1], temp[2]);
-			}
-			
-			else if (temp[0].equals("/first")) {
-				sendUserStatus();
-			} 
-			
-			else {
+			} else {
 				sendToAll(name, msg);
 			}
 		}
@@ -153,26 +139,24 @@ public class MainServer extends Thread implements G1Server{
 		public void run() {
 			String name = null;
 			try {
-				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장				
+				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
 				name = dis.readUTF();
-				g1Server.appendServerLog("채팅이름:"+name);
-				clients.put(name, dos);				
-//				sendUserStatus();
+				clients.put(name, dos);
 				dos.writeUTF("접속하신것을 환영합니다");
-				sendToAll("서버", name + " 님이 입장 하셨습니다");				
+				sendToAll("서버", name + " 님이 입장 하셨습니다");
+				sendUserStatus();
 				// 입력 스트림 내용을 반복하여 클라이언트 전체에 전송한다
-				while (dis != null) {					
+				while (dis != null) {
 					classfyMessage(name, dis.readUTF());
 				}
 			} catch (Exception e) {
 				// TODO: handle exception				
 			} finally { // 퇴장시 처리
-				sendUserStatus();
-				clients.remove(name);				
+				clients.remove(name);
 				sendToAll("서버", name + " 님이 퇴장 하셨습니다");
-				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + socket.getInetAddress() + ":"
+				g1Server.appendServerLog(socket.getInetAddress() + ":"
 				 + socket.getPort() + " 연결 끊김");	
-				
+				sendUserStatus();
 			}
 		}
 	}//ServerOperator

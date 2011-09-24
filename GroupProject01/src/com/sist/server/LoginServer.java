@@ -2,6 +2,7 @@ package com.sist.server;
 
 import java.io.*;
 import java.net.*;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -10,13 +11,8 @@ import com.sist.common.*;
 //최초 입력된 아이디와 패스워드를 기반으로 UIM을 이용 유저정보 조회
 //정보 인증시 닉네임을 받아 LobbyLogin에 전달
 public class LoginServer extends Thread {
-	ServerForm g1Server;
-	String userID;
-	String userPW;
-	String dbID;
-	String dbPW;
-	String tempName;	
-
+	private ServerForm g1Server;
+	
 	// 유저정보 처리를 담당할 uiManager객체 생성
 	private UserInfoManagerDAO uiManager = new UserInfoManagerDAO();
 	private HashMap<String, DataOutputStream> tempUserList = new HashMap<String, DataOutputStream>();
@@ -32,7 +28,7 @@ public class LoginServer extends Thread {
 		try {
 			serverSocket = new ServerSocket(Tools.LOGIN_SERVER_PORT);
 			InetAddress inet = InetAddress.getLocalHost();
-			g1Server.appendServerLog("[로그인서버] " + inet.getHostAddress() + ":"
+			g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + inet.getHostAddress() + ":"
 					+ serverSocket.getLocalPort());
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
@@ -41,8 +37,7 @@ public class LoginServer extends Thread {
 				soThread.start();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 		}
 	}
 
@@ -69,7 +64,6 @@ public class LoginServer extends Thread {
 		}
 
 		private void classfyMessage(String name, String msg) {
-			g1Server.appendServerLog("Login" + msg);
 			String temp[] = msg.split(" ", 3);
 			if (temp[0].equals("/login")) {
 				String result[] = uiManager.verifyUser(temp[1], temp[2]).split(
@@ -77,21 +71,20 @@ public class LoginServer extends Thread {
 				switch (Integer.parseInt(result[0])) {
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
-					// sendTo(유저, 메시지)
-					System.out.println(uiManager.getUserInfo(temp[1]).toString());
+					// sendTo(유저, 메시지)										
 					sendTo(name, "11 " + System.currentTimeMillis()/10000);
-					g1Server.appendServerLog(name + " 로그인 성공");
+					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 성공");
 					isOperatorOn = false;
 					break;
 				case 12:
 					// 아이디 일치, 패스워드 틀릴때 (경고창 띄운후 재시도)
 					sendTo(name, "12");
-					g1Server.appendServerLog(name + " 로그인 실패 (비밀번호 틀림)");
+					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 실패 (비밀번호 틀림)");
 					break;
 				case 22:
 					// 아이디 없을때 (경고창 띄운후 재시도)
 					sendTo(name, "22");
-					g1Server.appendServerLog(name + " 로그인 실패 (아이디 틀림)");
+					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 실패 (아이디 틀림)");
 					break;
 				}
 			}
@@ -109,7 +102,7 @@ public class LoginServer extends Thread {
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 				}
 			}
 		}
@@ -120,7 +113,7 @@ public class LoginServer extends Thread {
 				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
 				name = dis.readUTF();
 				tempUserList.put(name, dos);
-				g1Server.appendServerLog(name + " 로그인 세션 열림");
+				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 열림");
 				while (dis != null) {
 					if (!isOperatorOn) {
 						break;
@@ -128,11 +121,11 @@ public class LoginServer extends Thread {
 					classfyMessage(name, dis.readUTF());
 				}
 			} catch (Exception e) {
-				// TODO: handle exception
+				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
 				sendTo(name, " 로그인 서버와 연결 종료");
-				g1Server.appendServerLog(name + " 로그인 세션 종료");
+				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 종료");
 			}
 		}
 	}// ServerOperator

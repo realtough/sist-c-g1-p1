@@ -69,7 +69,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	public void lobbyLoginStart() {
 		try {
 			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
-			userName = socket.getLocalAddress()+":"+socket.getLocalPort();
+			userName = (socket.getLocalAddress()+":"+socket.getLocalPort()).substring(1);
 			ClientReceiver crThread = new ClientReceiver(socket);
 			ClientSender csThread = new ClientSender(userName, socket);
 			crThread.start();

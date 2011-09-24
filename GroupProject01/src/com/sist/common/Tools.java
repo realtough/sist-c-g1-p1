@@ -1,8 +1,8 @@
 package com.sist.common;
 
 import java.awt.*;
-import java.io.*;
-import java.net.*;
+import java.sql.*;
+import java.text.*;
 
 public class Tools {
 	private static Toolkit myTK = Toolkit.getDefaultToolkit();
@@ -11,8 +11,8 @@ public class Tools {
 	public static String serverIp = "localhost";
 	public static final int MAIN_SERVER_PORT = 10000;
 	public static final int LOGIN_SERVER_PORT = 10001;
-	public static final String LOGIN_SERVER_HEADER = "[로그인서버]";
-	public static final String MAIN_SERVER_HEADER = "[메인서버]";
+	public static final String LOGIN_SERVER_HEADER = "[로그인서버] ";
+	public static final String MAIN_SERVER_HEADER = "[메인서버] ";
 	
 	//그리드백 레이아웃 용 메소드
 	public static void insert(Container cnt, Component cmp, int x, int y,
@@ -54,4 +54,26 @@ public class Tools {
 		gbc.insets = new Insets(insetSize, insetSize, insetSize, insetSize);
 		cnt.add(cmp, gbc);
 	}	
+	
+	public static UserInfoVO stringToUserInfo(String uimsg){
+		
+		SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd");
+		UserInfoVO uiVO = new UserInfoVO();		
+		String temp[] = uimsg.split("#", 7);		
+
+		try {
+			uiVO.setId(temp[0]);
+			uiVO.setPw(temp[1]);
+			uiVO.setC_name(temp[2]);
+			uiVO.setBirth(sdFormat.parse(temp[3]));	//ParseException 발생가능
+			uiVO.setSex(temp[4].charAt(0));
+			uiVO.setJoinus(sdFormat.parse(temp[5])); //ParseException 발생가능
+			uiVO.setNname(temp[6]);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(uiVO.getBirth().toString());
+		return uiVO;
+	}
 }

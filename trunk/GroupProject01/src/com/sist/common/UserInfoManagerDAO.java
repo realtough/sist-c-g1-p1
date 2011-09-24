@@ -10,7 +10,8 @@ public class UserInfoManagerDAO {
 	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
 	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	private final String ORACLE_ID = "hoon";
-	private final String ORACLE_PW = "73048442";
+//	private final String ORACLE_PW = "73048442";
+	private final String ORACLE_PW = "sistc";
 	private Connection dbConnection;
 	private PreparedStatement pStatement;
 
@@ -50,11 +51,23 @@ public class UserInfoManagerDAO {
 	}
 
 	// 회원 추가
-	public void insertUser(UserInfoVO ui) {
-		alluserList.put(getMaxNumber(), ui);
-		// for (int i = 0; i < alluserList.size(); i++) {
-		// System.out.println(alluserList.get(new Integer(i)).toString());
-		// }
+	public void insertUser(UserInfoVO uiVO) {
+		try {
+			connectDB();
+			String sql = "insert into customer values(?, ?, ?, ?, ?, sysdate, ?)";
+			pStatement = dbConnection.prepareStatement(sql);
+			pStatement.setString(1, uiVO.getId());
+			pStatement.setString(2, uiVO.getPw());
+			pStatement.setString(3, uiVO.getC_name());
+			pStatement.setDate(4, (java.sql.Date)uiVO.getBirth());
+			pStatement.setString(5, String.valueOf(uiVO.getSex()));
+			pStatement.setString(6, uiVO.getNname());
+			pStatement.executeQuery();			
+		} catch (SQLException e) {
+			// TODO: handle exception
+		} finally {
+			disconnectDB();
+		}
 	}
 
 	// 회원 탈퇴
@@ -67,9 +80,32 @@ public class UserInfoManagerDAO {
 
 	}
 
-	// 회원 목록
-	public HashMap<Integer, UserInfoVO> userAllList() {
-		return null;
+	// 전체 회원 목록
+	public ArrayList<UserInfoVO> userAllList() {
+		ArrayList<UserInfoVO> allUser = new ArrayList<UserInfoVO>();
+		try {
+			connectDB();
+			String sql = "select id, pw, c_name, birth, sex, joinus, nname from customer";
+			pStatement = dbConnection.prepareStatement(sql);
+			ResultSet rs = pStatement.executeQuery();
+			while(rs.next()){
+				UserInfoVO uiVO =new UserInfoVO();
+				uiVO.setId(rs.getString(1));
+				uiVO.setPw(rs.getString(2));
+				uiVO.setC_name(rs.getString(3));
+				uiVO.setBirth(rs.getDate(4));
+				uiVO.setSex(rs.getString(5).charAt(0));
+				uiVO.setJoinus(rs.getDate(6));
+				uiVO.setNname(rs.getString(7));
+				allUser.add(uiVO);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+		} finally {
+			disconnectDB();
+		}
+		return allUser;
 	}
 
 	public Integer getMaxNumber() {
@@ -96,7 +132,7 @@ public class UserInfoManagerDAO {
 			uiVO.setSex(rs.getString(5).charAt(0));
 			uiVO.setJoinus(rs.getDate(6));
 			uiVO.setNname(rs.getString(7));
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			// TODO: handle exception
 		} finally {
 			disconnectDB();

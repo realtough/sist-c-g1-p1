@@ -1,25 +1,24 @@
 package com.sist.server;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.swing.*;
 
 import com.sist.common.Tools;
-import com.sist.common.UserInfoManagerDAO;
 
 //로그인과 유저정보 관리를 별도 서버로 분리할지 고려할것
 public class ServerForm extends JFrame implements ActionListener {
-	Dimension dSize = new Dimension(640, 600);
-	Dimension dPosition = new Dimension(Tools.centerX - dSize.width / 2,
+	private Dimension dSize = new Dimension(640, 600);
+	private Dimension dPosition = new Dimension(Tools.centerX - dSize.width / 2,
 			Tools.centerY - dSize.height / 2);
-
-	boolean isServerOn = false;
-
+	private CardLayout card = new CardLayout();
+	private	JPanel jpMainBoard = new JPanel();
+	
 	private JScrollBar jbScrollBar;
 	private JTextArea jtaServerLog = new JTextArea();
 	private JScrollPane jsPane = new JScrollPane(jtaServerLog);
@@ -35,18 +34,28 @@ public class ServerForm extends JFrame implements ActionListener {
 	private JMenu jmUser = new JMenu("유저");
 	private JMenuItem jmAllUser = new JMenuItem("전체유저");
 	private JMenuItem jmConnUser = new JMenuItem("접속유저");
-	private JMenuItem jmSendUser = new JMenuItem("정보전송");
-	LoginServer liServer;
-	MainServer mnServer;
+	// private JMenuItem jmSendUser = new JMenuItem("정보전송");
+	
+	boolean isServerOn = false;
+
+	private LoginServer liServer;
+	private MainServer mnServer;
+	private UserListForm ulForm = new UserListForm();;
 
 	public ServerForm() {
+		setLayout(card);
+		
 		liServer = new LoginServer(this);
 		mnServer = new MainServer(this);
 		jbScrollBar = jsPane.getVerticalScrollBar();
 		jtaServerLog.setEditable(false);
-
-		add("Center", jsPane);
-		add("South", jtfServerInput);
+		
+		jpMainBoard.setLayout(new BorderLayout());
+		jpMainBoard.add("Center", jsPane);
+		jpMainBoard.add("South", jtfServerInput);
+		
+		add("LOG", jpMainBoard);
+		add("LIST", ulForm);						
 
 		// 메뉴바 설정
 		jmb.add(jmServer);
@@ -58,13 +67,12 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmb.add(jmUser);
 		jmUser.add(jmAllUser);
 		jmUser.add(jmConnUser);
-		jmUser.add(jmSendUser);
-		
+		// jmUser.add(jmSendUser);
+
 		// 임시 사용불능 기능들
-		jmSave.setEnabled(false);
-		jmClose.setEnabled(false);
-		jmUser.setEnabled(false);
-		
+		 jmClose.setEnabled(false);
+		 jtfServerInput.setEnabled(false);
+
 		// 프레임 설정
 		setJMenuBar(jmb);
 		setTitle("G1 Server");
@@ -78,7 +86,10 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmClose.addActionListener(this);
 		jmSave.addActionListener(this);
 		jmClear.addActionListener(this);
-		jtfServerInput.addActionListener(this);
+		jmAllUser.addActionListener(this);
+		jmConnUser.addActionListener(this);
+		jtfServerInput.addActionListener(this);		
+		ulForm.jbClose.addActionListener(this);
 	}
 
 	public void appendServerLog(String msg) {
@@ -86,43 +97,72 @@ public class ServerForm extends JFrame implements ActionListener {
 		jbScrollBar.setValue(jbScrollBar.getMaximum());
 	}
 
+	public String getServerLog() {
+		return jtaServerLog.getText().trim();
+	}
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		new ServerForm();
 	}
 
-	public void saveLog(){
-		File logFile = new File(".\\serverlog\\"+new Date().toString()+".txt");
-		
+	public void saveLog() {
+		File logFile = null;
+		FileWriter writer = null;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd_HHmmss");
+		try {
+			logFile = new File(".\\serverlog\\" + sdf.format(new Date())
+					+ ".txt");
+			logFile.createNewFile();
+			writer = new FileWriter(logFile);
+			writer.write(getServerLog());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
 		if (ob == jmStart) {
 			if (!isServerOn) {
-				isServerOn = true;				
+				isServerOn = true;
 				liServer.start();
 				mnServer.start();
-			} else{
+			} else {
 				JOptionPane.showMessageDialog(this, "서버가 이미 가동 중 입니다");
 			}
 		} else if (ob == jmClose) {
-			appendServerLog("서버가 종료 되었습니다");
-			isServerOn = false;
-//			liServer.stopServer();			
-//			mnServer.stopServerOperator();
+			// appendServerLog("서버가 종료 되었습니다");
+			// isServerOn = false;
+			// liServer.stopServer();
+			// mnServer.stopServerOperator();
 		} else if (ob == jmSave) {
-			//로그를 파일로 저장
+			// 로그를 파일로 저장
+			saveLog();
 		} else if (ob == jmClear) {
 			jtaServerLog.setText("");
-		} else if (ob == jmSendUser) {
-			
+		} else if (ob == jmAllUser) {
+			//전체 유저 목록 로딩
+			//카드레이아웃을 이용한 별도의 패널에 테이블로 표시
+			card.show(getContentPane(), "LIST"); 
+		} else if (ob == jmConnUser) {
+			//접속 중인 유저 목록 로딩
+			//닉네임으로 간단히 표시?
+		} else if (ob == ulForm.jbClose){
+			card.show(getContentPane(), "LOG");
 		}
-		
-		if (ob == jtfServerInput) {
+//		if (ob == jtfServerInput) {
 			// mnServer.sendToAll("서버", jtfServerInput.getText());
-			jtfServerInput.setText("");
-		}
+//			jtfServerInput.setText("");
+//		}
 	}
 }// class

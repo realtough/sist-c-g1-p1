@@ -57,6 +57,7 @@ public class UserInfoVO {
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return id+"|"+pw+"|"+c_name+"|"+birth+"|"+sex+"|"+joinus+"|"+nname;
+		String regex = "#";
+		return id+regex+pw+regex+c_name+regex+birth+regex+sex+regex+joinus+regex+nname;
 	}	
 }//class

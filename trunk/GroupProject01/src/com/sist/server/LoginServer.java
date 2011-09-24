@@ -69,6 +69,7 @@ public class LoginServer extends Thread {
 		}
 
 		private void classfyMessage(String name, String msg) {
+			g1Server.appendServerLog("Login" + msg);
 			String temp[] = msg.split(" ", 3);
 			if (temp[0].equals("/login")) {
 				String result[] = uiManager.verifyUser(temp[1], temp[2]).split(
@@ -77,7 +78,8 @@ public class LoginServer extends Thread {
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
 					// sendTo(유저, 메시지)
-					sendTo(name, "11 " + result[1]);
+					System.out.println(uiManager.getUserInfo(temp[1]).toString());
+					sendTo(name, "11 " + System.currentTimeMillis()/10000);
 					g1Server.appendServerLog(name + " 로그인 성공");
 					isOperatorOn = false;
 					break;

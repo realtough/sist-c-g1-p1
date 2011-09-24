@@ -8,7 +8,7 @@ public class Tools {
 	private static Toolkit myTK = Toolkit.getDefaultToolkit();
 	public static int centerX = myTK.getScreenSize().width / 2;
 	public static int centerY = myTK.getScreenSize().height / 2;
-	public static String serverIp = "211.238.142.116";
+	public static String serverIp = "localhost";
 	public static final int MAIN_SERVER_PORT = 10000;
 	public static final int LOGIN_SERVER_PORT = 10001;
 	public static final String LOGIN_SERVER_HEADER = "[로그인서버]";

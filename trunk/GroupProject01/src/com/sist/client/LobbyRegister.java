@@ -91,18 +91,16 @@ public class LobbyRegister extends JDialog implements ActionListener {
 		String pw = jpfPW.getPassword().toString().trim();
 		String nick = jtfNickName.getText().trim();
 		String name = jtfName.getText().trim();
-		int sex = 0;
+		char sex = ' ';
 		if (jrMan.isSelected()) {
-			sex = 1;
+			sex = '1';
 		} else if (jrWoman.isSelected()) {
-			sex = 2;
+			sex = '2';
 		}
 		Date birthDate = sdModel.getDate();
 		Date registDate = new Date();
 
-		UserInfoVO ui = new UserInfoVO(id, pw, name, birthDate, sex, registDate,
-				nick);
-		new UserInfoManagerDAO().insertUser(ui);
+		
 	}
 
 	@Override

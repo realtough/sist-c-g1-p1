@@ -4,85 +4,59 @@ import java.util.Date;
 
 //유저정보 클래스
 public class UserInfoVO {
-	private String userID;
-	private String userPW;
-	private String userName;
-	private Date birthDate;
-	private int sex;
-	private Date registerDate;
-	private String userNickname;
+	private String id;
+	private String pw;
+	private String c_name;
+	private Date birth;
+	private char sex;
+	private Date joinus;
+	private String nname;	
 	
-	public UserInfoVO(){
-		
+	public String getId() {
+		return id;
 	}
-
-	public UserInfoVO(String userID, String userPW, String userName,
-			Date birthDate, int sex, Date registerDate, String userNickname) {
-		super();
-		this.userID = userID;
-		this.userPW = userPW;
-		this.userName = userName;
-		this.birthDate = birthDate;
-		this.sex = sex;
-		this.registerDate = registerDate;
-		this.userNickname = userNickname;
+	public void setId(String id) {
+		this.id = id;
 	}
-
-	public String getUserID() {
-		return userID;
+	public String getPw() {
+		return pw;
 	}
-
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public void setPw(String pw) {
+		this.pw = pw;
 	}
-
-	public String getUserPW() {
-		return userPW;
+	public String getC_name() {
+		return c_name;
 	}
-
-	public void setUserPW(String userPW) {
-		this.userPW = userPW;
+	public void setC_name(String c_name) {
+		this.c_name = c_name;
 	}
-
-	public String getUserName() {
-		return userName;
+	public Date getBirth() {
+		return birth;
 	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setBirth(Date birth) {
+		this.birth = birth;
 	}
-
-	public Date getBirthDate() {
-		return birthDate;
-	}
-
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}
-
-	public int getSex() {
+	public char getSex() {
 		return sex;
 	}
-
-	public void setSex(int sex) {
+	public void setSex(char sex) {
 		this.sex = sex;
 	}
-
-	public Date getRegisterDate() {
-		return registerDate;
+	public Date getJoinus() {
+		return joinus;
 	}
-
-	public void setRegisterDate(Date registerDate) {
-		this.registerDate = registerDate;
+	public void setJoinus(Date joinus) {
+		this.joinus = joinus;
 	}
-
-	public String getUserNickname() {
-		return userNickname;
+	public String getNname() {
+		return nname;
 	}
-
-	public void setUserNickname(String userNickname) {
-		this.userNickname = userNickname;
+	public void setNname(String nname) {
+		this.nname = nname;
 	}
-
-
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return id+"|"+pw+"|"+c_name+"|"+birth+"|"+sex+"|"+joinus+"|"+nname;
+	}	
 }//class

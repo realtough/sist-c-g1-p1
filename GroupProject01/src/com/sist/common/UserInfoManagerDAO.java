@@ -5,62 +5,56 @@ import java.util.Date;
 import java.sql.*;
 
 //DB랑 통신필요
-public class UserInfoManagerDAO {	
+public class UserInfoManagerDAO {
 
-	private final String ORACLE_URL = "jdbc:oracle:this:@localhost:1521:XE";
-	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";		
+	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
+	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	private final String ORACLE_ID = "hoon";
-	private final String ORACLE_PW = "sistc";
+	private final String ORACLE_PW = "73048442";
 	private Connection dbConnection;
 	private PreparedStatement pStatement;
-	
+
 	HashMap<Integer, UserInfoVO> alluserList = new HashMap<Integer, UserInfoVO>();
 
+	// 드라이버 등록
 	public UserInfoManagerDAO() {
-		
 		try {
 			Class.forName(ORACLE_DRIVER);
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		alluserList.put(getMaxNumber(), new UserInfoVO("hoon", "sist", "조병훈",
-				new Date(), 1, new Date(), "훈이"));
-		alluserList.put(getMaxNumber(), new UserInfoVO("ho", "sist", "김재호",
-				new Date(), 1, new Date(), "호이"));
-		alluserList.put(getMaxNumber(), new UserInfoVO("jun", "sist", "주형준",
-				new Date(), 1, new Date(), "준이"));
-		alluserList.put(getMaxNumber(), new UserInfoVO("hyun", "sist", "김지현",
-				new Date(), 1, new Date(), "현이"));
-		alluserList.put(getMaxNumber(), new UserInfoVO("wook", "sist", "조성욱",
-				new Date(), 1, new Date(), "욱이"));
 	}
 
-	public void connectDB(){
+	public void connectDB() {
 		try {
-			dbConnection = DriverManager.getConnection(ORACLE_URL, ORACLE_ID, ORACLE_PW);
+			dbConnection = DriverManager.getConnection(ORACLE_URL, ORACLE_ID,
+					ORACLE_PW);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	public void disconnectDB(){
+
+	public void disconnectDB() {
 		try {
-			if(dbConnection != null) dbConnection.close();
-			if(pStatement != null) pStatement.close();
+			if (dbConnection != null) {
+				dbConnection.close();
+			}
+			if (pStatement != null) {
+				pStatement.close();
+			}
 		} catch (SQLException e) {
 			// TODO: handle exception
 		}
 	}
-	
+
 	// 회원 추가
 	public void insertUser(UserInfoVO ui) {
 		alluserList.put(getMaxNumber(), ui);
-//		for (int i = 0; i < alluserList.size(); i++) {
-//			System.out.println(alluserList.get(new Integer(i)).toString());
-//		}
+		// for (int i = 0; i < alluserList.size(); i++) {
+		// System.out.println(alluserList.get(new Integer(i)).toString());
+		// }
 	}
 
 	// 회원 탈퇴
@@ -73,19 +67,6 @@ public class UserInfoManagerDAO {
 
 	}
 
-	// 회원 찾기
-	public String getNickByID(String id){
-		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
-		String result = "";
-		while (itUserNo.hasNext()) {
-			UserInfoVO sui = alluserList.get(itUserNo.next());
-			if (sui.getUserID().equals(id)) {
-				result = sui.getUserNickname();
-				break;
-			} 
-		}				
-		return result; 
-	}
 	// 회원 목록
 	public HashMap<Integer, UserInfoVO> userAllList() {
 		return null;
@@ -97,25 +78,68 @@ public class UserInfoManagerDAO {
 			max = alluserList.size();
 		return new Integer(max);
 	}
+	
+	//로그인한 유저의 세부 정보를 얻는다
+	public UserInfoVO getUserInfo(String id){
+		UserInfoVO uiVO = new UserInfoVO();
+		try {
+			connectDB();
+			String sql = "select * from customer where id like ?";
+			pStatement = dbConnection.prepareStatement(sql);
+			pStatement.setString(1, id);
+			ResultSet rs = pStatement.executeQuery();
+			rs.next();
+			uiVO.setId(rs.getString(1));
+			uiVO.setPw(rs.getString(2));
+			uiVO.setC_name(rs.getString(3));
+			uiVO.setBirth(rs.getDate(4));
+			uiVO.setSex(rs.getString(5).charAt(0));
+			uiVO.setJoinus(rs.getDate(6));
+			uiVO.setNname(rs.getString(7));
+		} catch (Exception e) {
+			// TODO: handle exception
+		} finally {
+			disconnectDB();
+		}
+		return uiVO;
+	}
 
 	// 로그인서버로 부터 받은 정보 검증
 	// ID가 없을 경우, ID는 맞지만 패스워드가 틀릴경우, 모두 맞을경우
 	public String verifyUser(String userID, String userPW) {
-		Iterator<Integer> itUserNo = alluserList.keySet().iterator();
 		String result = "";
-		while (itUserNo.hasNext()) {
-			UserInfoVO sui = alluserList.get(itUserNo.next());
-			if (sui.getUserID().equals(userID)
-					&& sui.getUserPW().equals(userPW)) {
-				result = "11 "+sui.getUserNickname();
-				break;
-			} else if (sui.getUserID().equals(userID)
-					&& !sui.getUserPW().equals(userPW)) {
-				result = "12";
-				break;
-			} else if (!sui.getUserID().equals(userID)) {
+		try {
+			connectDB();
+			String sql = "select count(*) from customer where id like ?";
+			pStatement = dbConnection.prepareStatement(sql);
+			pStatement.setString(1, userID);
+			ResultSet rs = pStatement.executeQuery();
+			rs.next();
+			int correct = rs.getInt(1);
+			if (correct == 0) {
+				// 아이디가 없다
 				result = "22";
+			} else if (correct == 1) {
+				// 아이디와 비밀번호 모두 일치
+				sql = "select pw from customer where id like ?";
+				pStatement = dbConnection.prepareStatement(sql);
+				pStatement.setString(1, userID);
+				rs = pStatement.executeQuery();
+				rs.next();
+				String pw = rs.getString(1);
+				rs.close();
+				if (pw.equals(userPW)) {
+					result = "11";
+				} else {
+					// 아이디는 맞지만 비밀번호가 틀리다
+					result = "12";
+				}
 			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			disconnectDB();
 		}
 		return result;
 	}

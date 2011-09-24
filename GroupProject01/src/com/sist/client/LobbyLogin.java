@@ -89,6 +89,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		// 서버와 통신 필요
 		if(checkInfo()){
 			idpwMessage = "/login " + id + " " + pw;
+			System.out.println("idpw : " + idpwMessage);
 			isSuspend = false;			
 		}
 	}
@@ -127,7 +128,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	}
 
 	private void classfyMessage(String msg) {
-		System.out.println(msg);
+		System.out.println("Receive : " + msg);
 		String msgtemp[] = msg.split(" ", 3);
 		if (msgtemp[0].equals("[로그인서버]")) {
 			switch(Integer.parseInt(msgtemp[1])){
@@ -166,7 +167,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				while (dis != null) {
 					// appendChatLog(dis.readUTF());
 					classfyMessage(dis.readUTF());					
-					if(isStop) return;
+//					if(isStop) return;
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
@@ -198,12 +199,15 @@ public class LobbyLogin extends JDialog implements ActionListener {
 					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 				}
 				while (dos != null) {
+//					System.out.println("Send" + idpwMessage);
 					if(!isSuspend){
-						System.out.println(idpwMessage);
+						System.out.println("Send" + idpwMessage);
 						dos.writeUTF(idpwMessage);
 						isSuspend = true;
+					}else{
+						repaint();
 					}
-					if(isStop) return;
+//					if(isStop) return;
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

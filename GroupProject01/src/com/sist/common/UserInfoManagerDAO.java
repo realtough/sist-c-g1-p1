@@ -9,8 +9,7 @@ public class UserInfoManagerDAO {
 
 	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
 	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
-	private final String ORACLE_ID = "hoon";
-//	private final String ORACLE_PW = "73048442";
+	private final String ORACLE_ID = "hoon";	
 	private final String ORACLE_PW = "sistc";
 	private Connection dbConnection;
 	private PreparedStatement pStatement;

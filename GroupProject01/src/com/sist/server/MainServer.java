@@ -9,7 +9,7 @@ import com.sist.common.Tools;
 //로그인 이후 모든 통신 처리. 전체, 1:1, 1:M 전달 기능 구현할것
 //클라이언트로부터 받은 닉네임을  키로, 전달받은 메시지를 값으로 받는 해쉬맵에
 //유저정보 저장
-public class MainServer extends Thread {
+public class MainServer extends Thread implements G1Server {
 	ServerForm g1Server;
 	boolean isServerOn = false;
 	private HashMap<String, DataOutputStream> clients; // 현재접속유저
@@ -36,7 +36,6 @@ public class MainServer extends Thread {
 
 			while (true) { // 무한반복하며 연결이 들어올 경우 리시버 쓰레드를 생성해 연결
 				socket = serverSocket.accept();
-				System.out.println("Connected");
 				ServerOperator soThread = new ServerOperator(socket);
 				soThread.start();
 			}
@@ -54,14 +53,23 @@ public class MainServer extends Thread {
 		private Socket socket;
 		private DataInputStream dis;
 		private DataOutputStream dos;
+		private BufferedInputStream biStream;
+		private BufferedOutputStream boStream;
+		private BufferedReader bfReader;
+		private BufferedWriter bfWriter;
 
 		public ServerOperator(Socket socket) {
 			this.socket = socket;
-			String userip = (socket.getInetAddress() + ":" + socket.getPort()).substring(1);
+			String userip = (this.socket.getInetAddress() + ":" + this.socket
+					.getPort()).substring(1);
 			g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER + userip + " 연결");
 			try {
-				dis = new DataInputStream(socket.getInputStream());
-				dos = new DataOutputStream(socket.getOutputStream());
+				dis = new DataInputStream(this.socket.getInputStream());
+				dos = new DataOutputStream(this.socket.getOutputStream());
+				biStream = new BufferedInputStream(dis);
+				boStream = new BufferedOutputStream(dos);
+				bfReader = new BufferedReader(new InputStreamReader(dis));
+				bfWriter = new BufferedWriter(new OutputStreamWriter(dos));
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ e.getMessage());
@@ -124,8 +132,8 @@ public class MainServer extends Thread {
 							.get(clientsName.next());
 					dos.writeUTF("[" + from + "] " + msg);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
+							+ e.getMessage());
 				}
 			}
 		}
@@ -161,6 +169,16 @@ public class MainServer extends Thread {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ socket.getInetAddress() + ":" + socket.getPort()
 						+ " 연결 끊김");
+				try {
+					biStream.close();
+					boStream.close();
+					dis.close();
+					dos.close();
+					socket.close();
+				} catch (IOException e) {
+					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
+							+ e.getMessage());
+				}
 				sendUserStatus();
 			}
 		}

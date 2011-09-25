@@ -15,7 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import com.sist.common.Tools;
 
 //로비화면의 실제 폼과 기능 구현
-public class LobbyMain extends JFrame implements ActionListener {
+public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	Dimension gameMainSize = new Dimension(800, 600);
 	Dimension frameSize = new Dimension(1024, 768);
 	Dimension framePosition = new Dimension(

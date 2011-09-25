@@ -10,7 +10,7 @@ import com.sist.common.*;
 
 //최초 입력된 아이디와 패스워드를 기반으로 UIM을 이용 유저정보 조회
 //정보 인증시 닉네임을 받아 LobbyLogin에 전달
-public class LoginServer extends Thread {
+public class LoginServer extends Thread implements G1Server{
 	private ServerForm g1Server;
 	
 	// 유저정보 처리를 담당할 uiManager객체 생성
@@ -50,6 +50,8 @@ public class LoginServer extends Thread {
 		Socket socket;
 		DataInputStream dis;
 		DataOutputStream dos;
+		BufferedInputStream biStream;
+		BufferedOutputStream boStream;
 		boolean isOperatorOn = true;
 		
 		public ServerOperator(Socket socket) {
@@ -71,8 +73,8 @@ public class LoginServer extends Thread {
 				switch (Integer.parseInt(result[0])) {
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
-					// sendTo(유저, 메시지)										
-					sendTo(name, "11 " + System.currentTimeMillis()/10000);
+					// sendTo(유저, 메시지)	
+					sendTo(name, "11 " + System.currentTimeMillis()/100000);
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 성공");
 					isOperatorOn = false;
 					break;
@@ -125,6 +127,14 @@ public class LoginServer extends Thread {
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
 				sendTo(name, " 로그인 서버와 연결 종료");
+				try {
+					dis.close();
+					dos.close();
+					socket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 종료");
 			}
 		}

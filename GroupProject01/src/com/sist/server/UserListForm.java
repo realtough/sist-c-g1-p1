@@ -3,6 +3,7 @@ package com.sist.server;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -52,6 +53,14 @@ public class UserListForm extends JPanel implements ActionListener{
 //		setVisible(true);
 	}
 
+	public void removeTable(){
+		
+	}
+	
+	public void addTable(ArrayList aList){
+		
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub

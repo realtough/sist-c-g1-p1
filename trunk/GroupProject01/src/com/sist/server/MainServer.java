@@ -53,8 +53,6 @@ public class MainServer extends Thread implements G1Server {
 		private Socket socket;
 		private DataInputStream dis;
 		private DataOutputStream dos;
-		private BufferedInputStream biStream;
-		private BufferedOutputStream boStream;
 		private BufferedReader bfReader;
 		private BufferedWriter bfWriter;
 
@@ -66,10 +64,8 @@ public class MainServer extends Thread implements G1Server {
 			try {
 				dis = new DataInputStream(this.socket.getInputStream());
 				dos = new DataOutputStream(this.socket.getOutputStream());
-				biStream = new BufferedInputStream(dis);
-				boStream = new BufferedOutputStream(dos);
-				bfReader = new BufferedReader(new InputStreamReader(dis));
-				bfWriter = new BufferedWriter(new OutputStreamWriter(dos));
+//				bfReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+//				bfWriter = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ e.getMessage());
@@ -160,7 +156,7 @@ public class MainServer extends Thread implements G1Server {
 				while (dis != null) {
 					classfyMessage(name, dis.readUTF());
 				}
-			} catch (Exception e) {
+			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ e.getMessage());
 			} finally { // Επΐε½Γ Γ³Έ®
@@ -169,17 +165,21 @@ public class MainServer extends Thread implements G1Server {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ socket.getInetAddress() + ":" + socket.getPort()
 						+ " Ώ¬°α ²χ±θ");
-				try {
-					biStream.close();
-					boStream.close();
-					dis.close();
-					dos.close();
-					socket.close();
-				} catch (IOException e) {
-					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
-							+ e.getMessage());
-				}
+				closeStream();
 				sendUserStatus();
+			}
+		}
+		
+		private void closeStream(){
+			try {
+//				bfReader.close();
+//				bfWriter.close();
+				dis.close();
+				dos.close();
+				socket.close();
+			} catch (IOException e) {
+				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
+						+ e.getMessage());
 			}
 		}
 	}// ServerOperator

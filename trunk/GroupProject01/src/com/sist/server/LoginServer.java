@@ -50,8 +50,8 @@ public class LoginServer extends Thread implements G1Server{
 		Socket socket;
 		DataInputStream dis;
 		DataOutputStream dos;
-		BufferedInputStream biStream;
-		BufferedOutputStream boStream;
+		BufferedReader bfReader;
+		BufferedWriter bfWriter;
 		boolean isOperatorOn = true;
 		
 		public ServerOperator(Socket socket) {
@@ -59,9 +59,11 @@ public class LoginServer extends Thread implements G1Server{
 			try {
 				dis = new DataInputStream(socket.getInputStream());
 				dos = new DataOutputStream(socket.getOutputStream());
+//				bfReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//				bfWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 			}
 		}
 
@@ -74,7 +76,7 @@ public class LoginServer extends Thread implements G1Server{
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
 					// sendTo(유저, 메시지)	
-					sendTo(name, "11 " + System.currentTimeMillis()/100000);
+					sendTo(name, "11 " + (int)(Math.random()*50));
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 성공");
 					isOperatorOn = false;
 					break;
@@ -89,6 +91,8 @@ public class LoginServer extends Thread implements G1Server{
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 실패 (아이디 틀림)");
 					break;
 				}
+			}else if(temp[0].equals("/regist")){
+				
 			}
 		}
 
@@ -126,16 +130,22 @@ public class LoginServer extends Thread implements G1Server{
 				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
-				sendTo(name, " 로그인 서버와 연결 종료");
-				try {
-					dis.close();
-					dos.close();
-					socket.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				sendTo(name, " 로그인 서버와 연결 종료");	
+//				closeStream();
 				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name + " 로그인 세션 종료");
+			}
+		}
+		
+		private void closeStream(){
+			try {
+				dis.close();
+				dos.close();
+//				bfReader.close();
+//				bfWriter.close();				
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + e.getMessage());
 			}
 		}
 	}// ServerOperator

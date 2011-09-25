@@ -16,48 +16,57 @@ import com.sist.common.Tools;
 
 //로비화면의 실제 폼과 기능 구현
 public class LobbyMain extends JFrame implements ActionListener, G1Client {
-	Dimension gameMainSize = new Dimension(800, 600);
-	Dimension frameSize = new Dimension(1024, 768);
-	Dimension framePosition = new Dimension(
-			Tools.centerX - frameSize.width / 2, Tools.centerY
-					- frameSize.height / 2);
+	private Dimension gameMainSize = new Dimension(800, 600);
+	private Dimension frameSize = new Dimension(1024, 768);
+	private Dimension framePosition = new Dimension(Tools.centerX
+			- frameSize.width / 2, Tools.centerY - frameSize.height / 2);
 
 	// 로그인과 가입 폼 다이얼로그 선언
-	LobbyLogin lLogin;
-	LobbyRegister lRegister;
+	private LobbyLogin lLogin;
+	private LobbyRegister lRegister;
 
 	// 보더효과와 카드레이아웃 설정
-	Border bdMainEdge = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-	CardLayout card = new CardLayout();
+	private Border bdMainEdge = BorderFactory
+			.createEtchedBorder(EtchedBorder.RAISED);
+	private CardLayout card = new CardLayout();
 
 	// 메뉴 선언 및 생성
-	JMenuBar jmb = new JMenuBar();
-	JMenu jmGameMenu = new JMenu("게임");
-	JMenuItem jmLogin = new JMenuItem("로그인");
-	JMenuItem jmExit = new JMenuItem("종료");
+	private JMenuBar jmb = new JMenuBar();
+	private JMenu jmGameMenu = new JMenu("게임");
+	private JMenuItem jmLogin = new JMenuItem("로그인");
+	private JMenuItem jmExit = new JMenuItem("종료");
 
-	JPanel jpMain = new JPanel();
-	JPanel jpRightTab = new JPanel();
-	JPanel jpUserInfo = new JPanel();
-	JTable jtUserList;
-	DefaultTableModel dtModel;
+	private JPanel jpMain = new JPanel();
+	private JPanel jpRightTab = new JPanel();
+	private JPanel jpUserInfo = new JPanel();
+	private JTable jtUserList;
+	private DefaultTableModel dtModel;
 
-	JPanel jpGameMain = new JPanel();
-	JPanel jpGameSelect = new JPanel();
+	private JPanel jpGameMain = new JPanel();
+	private JPanel jpGameSelect = new JPanel();
 
-	JPanel jpChat = new JPanel();
-	JTextArea jtaChatList = new JTextArea();
-	JTextField jtfChatInput = new JTextField();
+	private JPanel jpChat = new JPanel();
+	private JTextArea jtaChatList = new JTextArea();
+	private JTextField jtfChatInput = new JTextField();
 
-	JScrollPane jsChatList = new JScrollPane(jtaChatList);
-	JScrollBar jbChatListBar;
+	private JScrollPane jsChatList = new JScrollPane(jtaChatList);
+	private JScrollBar jbChatListBar;
 
-	JButton jbGame1 = new JButton("게임1");
-	JButton jbGame2 = new JButton("게임2");
-	JButton jbGame3 = new JButton("게임3");
-	JButton jbGame4 = new JButton("게임4");
+	private JButton jbGame1 = new JButton("게임1");
+	private JButton jbGame2 = new JButton("게임2");
+	private JButton jbGame3 = new JButton("게임3");
+	private JButton jbGame4 = new JButton("게임4");
 
-	boolean sendSuspend = true;
+	// 채팅창 확대 축소 관련
+	private JPanel jpChatButtonPanel = new JPanel();
+	private JTextArea jtaChatScreen = new JTextArea();
+	private JScrollPane jsChatScreenPane = new JScrollPane(jtaChatScreen);
+	private JButton jbChatMaximize = new JButton("△");
+	private JButton jbChatMinimize = new JButton("▽");
+	private JScrollBar jsBar;
+
+	private boolean sendSuspend = true;
+	private boolean isChatMaximized = false;
 
 	public LobbyMain() {
 		super("Mini Game");
@@ -83,24 +92,28 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 		// Test//
 		jpRightTab.setBackground(Color.RED);
+		jsBar = jsChatScreenPane.getVerticalScrollBar();
 		// jpChat.setBackground(Color.GREEN);
 		// jpGameMain.setBackground(Color.BLUE);
 		// Test//
 
-		//GameSelect패널 설정
+		// GameSelect패널 설정
 		jpGameSelect.setLayout(new GridLayout(2, 2, 5, 5));
 		jpGameSelect.add(jbGame1);
 		jpGameSelect.add(jbGame2);
 		jpGameSelect.add(jbGame3);
 		jpGameSelect.add(jbGame4);
-		
+
 		// 채팅창 설정
 		jtaChatList.setLineWrap(true);
 		jbChatListBar = jsChatList.getVerticalScrollBar();
 		jtaChatList.setEditable(false);
-		jpChat.setLayout(new GridBagLayout());
-		Tools.insert(jpChat, jsChatList, 0, 0, 1, 1, 0.5, 0.9);
-		Tools.insert(jpChat, jtfChatInput, 0, 1, 1, 1, 0.5, 0.1);
+		jpChat.setLayout(new GridBagLayout());		
+		Tools.insert(jpChat, jsChatList, 0, 0, 1, 1, 1.0, 0.9);
+		Tools.insert(jpChat, jtfChatInput, 0, 1, 1, 1, 1.0, 0.1);
+		jpChatButtonPanel.add(jbChatMaximize);
+		jpChatButtonPanel.add(jbChatMinimize);
+		Tools.insert(jpChat, jpChatButtonPanel, 1, 0, 1, 2, 0.0, 0.5);
 
 		// 유저 정보창 배치
 		jpRightTab.setLayout(new GridBagLayout());
@@ -112,6 +125,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		jpMain.setLayout(null);
 		jpGameMain.setLayout(card);
 		jpGameMain.add("GAMESELECT", jpGameSelect);
+		jpGameMain.add("CHATSCREEN", jsChatScreenPane);
 		jpGameMain.setBounds(5, 5, gameMainSize.width, gameMainSize.height);
 		jpMain.add(jpGameMain);
 		jpChat.setBounds(5, 605, 800, 100);
@@ -134,11 +148,13 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		jtfChatInput.addActionListener(this);
 		jmLogin.addActionListener(this);
 		jmExit.addActionListener(this);
+		jbChatMaximize.addActionListener(this);
+		jbChatMinimize.addActionListener(this);
 	}
 
-	public void clientStart(String userName) {				
-		try {			
-			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);			
+	public void clientStart(String userName) {
+		try {
+			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			ClientReceiver crThread = new ClientReceiver(socket);
 			ClientSender csThread = new ClientSender(userName, socket);
 			crThread.start();
@@ -163,29 +179,33 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-
 		Object ob = e.getSource();
-
 		if (ob == jmLogin) {
 			lLogin.lobbyLoginStart();
-			lLogin.setVisible(true);			
+			lLogin.setVisible(true);
 		} else if (ob == jmExit) {
 			System.exit(0);
 		}
-
 		if (ob == jtfChatInput) {
 			sendSuspend = false;
+		}
+		if (ob == jbChatMaximize) {
+			card.show(jpGameMain, "CHATSCREEN");
+		} else if (ob == jbChatMinimize) {
+			card.show(jpGameMain, "GAMESELECT");
 		}
 	}
 
 	class ClientReceiver extends Thread {
-		Socket socket;
-		DataInputStream dis;
-
+		private Socket socket;
+		private DataInputStream dis;
+		private BufferedReader bfReader;
+		
 		public ClientReceiver(Socket socket) {
 			this.socket = socket;
 			try {
-				dis = new DataInputStream(socket.getInputStream());
+				dis = new DataInputStream(this.socket.getInputStream());
+//				bfReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -195,12 +215,25 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		public void run() {
 			try {
 				while (dis != null) {
-					// appendChatLog(dis.readUTF());
+					// appendChatLog(dis.readUTF());					
 					classfyMessage(dis.readUTF());
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
 				ioe.printStackTrace();
+			} finally {
+				closeStream();
+			}
+		} 
+		
+		private void closeStream(){
+			try {
+//				bfReader.close();
+				dis.close();
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -217,23 +250,25 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 					String temp[] = { userList[i], "신병" };
 					dtModel.addRow(temp);
 				}
-			} else {				
+			} else {
 				appendChatLog(msg);
 			}
 		}
 	}
 
 	class ClientSender extends Thread {
-		Socket socket;
-		DataOutputStream dos;
-		String name;
+		private Socket socket;
+		private DataOutputStream dos;
+		private BufferedWriter bfWriter;
+		private String name;
 
 		public ClientSender(String userName, Socket socket) {
 			// socket의 output 스트림에 write한다
 			this.socket = socket;
 			this.name = userName;
 			try {
-				dos = new DataOutputStream(socket.getOutputStream());
+				dos = new DataOutputStream(this.socket.getOutputStream());
+//				bfWriter = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -243,11 +278,15 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		public void run() {
 			try {
 				if (dos != null) {
-					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
+					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다					
+//					bfWriter.write(name);
+//					bfWriter.flush();
 				}
 				while (dos != null) {
 					if (!sendSuspend) {
 						dos.writeUTF(jtfChatInput.getText());
+//						bfWriter.write(jtfChatInput.getText().trim());
+//						bfWriter.flush();
 						jtfChatInput.setText("");
 						sendSuspend = true;
 					}
@@ -255,7 +294,20 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} finally {
+				closeStream();
 			}
 		}
-	}
-}
+		
+		private void closeStream(){			
+			try {
+//				bfWriter.close();
+				dos.close();
+				socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
+		}
+	}//ClientSender
+}//class

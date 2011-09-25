@@ -89,7 +89,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		// 서버와 통신 필요
 		if(checkInfo()){
 			idpwMessage = "/login " + id + " " + pw;
-			System.out.println("idpw : " + idpwMessage);
+//			System.out.println("idpw : " + idpwMessage);
 			isSuspend = false;			
 		}
 	}
@@ -201,7 +201,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				while (dos != null) {
 //					System.out.println("Send" + idpwMessage);
 					if(!isSuspend){
-						System.out.println("Send" + idpwMessage);
+						System.out.println("Send : " + idpwMessage);
 						dos.writeUTF(idpwMessage);
 						isSuspend = true;
 					}else{

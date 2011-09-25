@@ -1,5 +1,6 @@
 package com.sist.common;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //유저정보 클래스
@@ -55,9 +56,11 @@ public class UserInfoVO {
 		this.nname = nname;
 	}
 	@Override
+	//VO객체의 모든값을 식별자로 묶어 하나의 문자열로 출력
+	//네트워크로 전송할시 문자열 전송 한가지로만 처리하기 위함
 	public String toString() {
-		// TODO Auto-generated method stub
 		String regex = "#";
-		return id+regex+pw+regex+c_name+regex+birth+regex+sex+regex+joinus+regex+nname;
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		return id+regex+pw+regex+c_name+regex+sdf.format(birth)+regex+sex+regex+sdf.format(joinus)+regex+nname;
 	}	
 }//class

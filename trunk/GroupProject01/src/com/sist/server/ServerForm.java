@@ -14,11 +14,11 @@ import com.sist.common.Tools;
 //로그인과 유저정보 관리를 별도 서버로 분리할지 고려할것
 public class ServerForm extends JFrame implements ActionListener {
 	private Dimension dSize = new Dimension(640, 600);
-	private Dimension dPosition = new Dimension(Tools.centerX - dSize.width / 2,
-			Tools.centerY - dSize.height / 2);
+	private Dimension dPosition = new Dimension(
+			Tools.centerX - dSize.width / 2, Tools.centerY - dSize.height / 2);
 	private CardLayout card = new CardLayout();
-	private	JPanel jpMainBoard = new JPanel();
-	
+	private JPanel jpMainBoard = new JPanel();
+
 	private JScrollBar jbScrollBar;
 	private JTextArea jtaServerLog = new JTextArea();
 	private JScrollPane jsPane = new JScrollPane(jtaServerLog);
@@ -34,8 +34,8 @@ public class ServerForm extends JFrame implements ActionListener {
 	private JMenu jmUser = new JMenu("유저");
 	private JMenuItem jmAllUser = new JMenuItem("전체유저");
 	private JMenuItem jmConnUser = new JMenuItem("접속유저");
-	// private JMenuItem jmSendUser = new JMenuItem("정보전송");
-	
+	private JMenuItem jmSendUser = new JMenuItem("정보전송");
+
 	boolean isServerOn = false;
 
 	private LoginServer liServer;
@@ -44,18 +44,18 @@ public class ServerForm extends JFrame implements ActionListener {
 
 	public ServerForm() {
 		setLayout(card);
-		
+
 		liServer = new LoginServer(this);
 		mnServer = new MainServer(this);
 		jbScrollBar = jsPane.getVerticalScrollBar();
 		jtaServerLog.setEditable(false);
-		
+
 		jpMainBoard.setLayout(new BorderLayout());
 		jpMainBoard.add("Center", jsPane);
 		jpMainBoard.add("South", jtfServerInput);
-		
+
 		add("LOG", jpMainBoard);
-		add("LIST", ulForm);						
+		add("LIST", ulForm);
 
 		// 메뉴바 설정
 		jmb.add(jmServer);
@@ -67,11 +67,12 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmb.add(jmUser);
 		jmUser.add(jmAllUser);
 		jmUser.add(jmConnUser);
-		// jmUser.add(jmSendUser);
+		jmUser.add(jmSendUser);
 
 		// 임시 사용불능 기능들
-		 jmClose.setEnabled(false);
-		 jtfServerInput.setEnabled(false);
+		jmClose.setEnabled(false);
+		jmSendUser.setEnabled(false);
+		jtfServerInput.setEnabled(false);
 
 		// 프레임 설정
 		setJMenuBar(jmb);
@@ -88,7 +89,8 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmClear.addActionListener(this);
 		jmAllUser.addActionListener(this);
 		jmConnUser.addActionListener(this);
-		jtfServerInput.addActionListener(this);		
+		jmSendUser.addActionListener(this);
+		jtfServerInput.addActionListener(this);
 		ulForm.jbClose.addActionListener(this);
 	}
 
@@ -151,18 +153,20 @@ public class ServerForm extends JFrame implements ActionListener {
 		} else if (ob == jmClear) {
 			jtaServerLog.setText("");
 		} else if (ob == jmAllUser) {
-			//전체 유저 목록 로딩
-			//카드레이아웃을 이용한 별도의 패널에 테이블로 표시
-			card.show(getContentPane(), "LIST"); 
+			// 전체 유저 목록 로딩
+			// 카드레이아웃을 이용한 별도의 패널에 테이블로 표시
+			card.show(getContentPane(), "LIST");
 		} else if (ob == jmConnUser) {
-			//접속 중인 유저 목록 로딩
-			//닉네임으로 간단히 표시?
-		} else if (ob == ulForm.jbClose){
+			// 접속 중인 유저 목록 로딩
+			// 닉네임으로 간단히 표시?
+		} else if (ob == jmSendUser) {
+			
+		} else if (ob == ulForm.jbClose) {
 			card.show(getContentPane(), "LOG");
 		}
-//		if (ob == jtfServerInput) {
-			// mnServer.sendToAll("서버", jtfServerInput.getText());
-//			jtfServerInput.setText("");
-//		}
+		// if (ob == jtfServerInput) {
+		// mnServer.sendToAll("서버", jtfServerInput.getText());
+		// jtfServerInput.setText("");
+		// }
 	}
 }// class

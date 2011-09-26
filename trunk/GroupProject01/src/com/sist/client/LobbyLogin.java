@@ -9,8 +9,6 @@ import java.net.UnknownHostException;
 
 import javax.swing.*;
 
-import com.sist.client.LobbyMain.ClientReceiver;
-import com.sist.client.LobbyMain.ClientSender;
 import com.sist.common.Tools;
 
 //로그인 서버와 통신. 입력받은 아이디와 패스워드를 하나의 문자열로 합쳐 전송
@@ -45,12 +43,11 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		jpButtonPanel.add(jbAccept);
 		jpButtonPanel.add(jbRegister);
 		jpButtonPanel.add(jbCancel);
-
+		
 		Tools.insert(this, jlID, 0, 0, 1, 1, 0.0, 0.5, 5);
 		Tools.insert(this, jlPW, 0, 1, 1, 1, 0.0, 0.5, 5);
 		Tools.insert(this, jtfID, 1, 0, 2, 1, 0.9, 0.5, 5);
 		Tools.insert(this, jpfPW, 1, 1, 2, 1, 0.9, 0.5, 5);
-
 		Tools.insert(this, jpButtonPanel, 0, 3, 4, 1, 0.5, 0.5, 5);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -69,14 +66,14 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	public void lobbyLoginStart() {
 		try {
 			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
-			userName = (socket.getLocalAddress()+":"+socket.getLocalPort()).substring(1);
+			userName = (socket.getLocalAddress() + ":" + socket.getLocalPort())
+					.substring(1);
 			ClientReceiver crThread = new ClientReceiver(socket);
 			ClientSender csThread = new ClientSender(userName, socket);
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "로그인 서버에 접속할 수 없습니다. 서버 상태를 확인하세요");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -87,10 +84,10 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		// 아이디가 없을때
 		// 아이디는 맞지만 비밀번호가 틀릴때
 		// 서버와 통신 필요
-		if(checkInfo()){
+		if (checkInfo()) {
 			idpwMessage = "/login " + id + " " + pw;
-//			System.out.println("idpw : " + idpwMessage);
-			isSuspend = false;			
+			// System.out.println("idpw : " + idpwMessage);
+			isSuspend = false;
 		}
 	}
 
@@ -98,10 +95,12 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		boolean isCorrect = false;
 		id = jtfID.getText().trim();
 		pw = String.valueOf(jpfPW.getPassword());
-		
-		if (id.length() == 0 || pw.length() == 0) {
-			JOptionPane.showMessageDialog(this, "아이디와 비밀번호를 입력하세요");
-		}else{
+
+		if (id.length() == 0) {
+			JOptionPane.showMessageDialog(this, "아이디를 입력하세요");
+		} else if (pw.length() == 0) {
+			JOptionPane.showMessageDialog(this, "비밀번호를 입력하세요");
+		} else {
 			isCorrect = true;
 		}
 		return isCorrect;
@@ -112,8 +111,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
 			userLogin();
-		} else if (ob == jbCancel) {
-			lobby.clientStart(userName);
+		} else if (ob == jbCancel) {			
 			isStop = true;
 			setVisible(false);
 			dispose();
@@ -127,27 +125,35 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		}
 	}
 
+	public void clearForm(){
+		jtfID.setText("");
+		jpfPW.setText("");
+	}
+	
 	private void classfyMessage(String msg) {
-		System.out.println("Receive : " + msg);
-		String msgtemp[] = msg.split(" ", 3);
-		if (msgtemp[0].equals("[로그인서버]")) {
-			switch(Integer.parseInt(msgtemp[1])){
-			case 11:	//아이디와 패스워드 일치 로그인 성공
+//		System.out.println("Receive : " + msg);
+		String msgtemp[] = msg.split("#", 3);
+		if (msgtemp[0].equals("[login]")) {
+			switch (Integer.parseInt(msgtemp[1])) {
+			case 11: // 아이디와 패스워드 일치 로그인 성공
 				lobby.clientStart(msgtemp[2]);
 				isStop = true;
 				setVisible(false);
 				dispose();
 				break;
 			case 12:
-				JOptionPane.showMessageDialog(this, "비밀번호가 틀립니다");					
+				JOptionPane.showMessageDialog(this, "비밀번호가 틀립니다");
 				break;
 			case 22:
 				JOptionPane.showMessageDialog(this, "아이디가 틀립니다");
 				break;
+			case 33:
+				JOptionPane.showMessageDialog(this, "비정상 오류 발생 - 창을 닫고 다시 시도하세요");
+				break;
 			}
 		}
 	}
-	
+
 	class ClientReceiver extends Thread {
 		Socket socket;
 		DataInputStream dis;
@@ -166,8 +172,8 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			try {
 				while (dis != null) {
 					// appendChatLog(dis.readUTF());
-					classfyMessage(dis.readUTF());					
-//					if(isStop) return;
+					classfyMessage(dis.readUTF());
+					// if(isStop) return;
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
@@ -198,16 +204,15 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				if (dos != null) {
 					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 				}
-				while (dos != null) {
-//					System.out.println("Send" + idpwMessage);
-					if(!isSuspend){
-						System.out.println("Send : " + idpwMessage);
+				while (dos != null) {					 
+					if (!isSuspend) {
+//						System.out.println("Send : " + idpwMessage);
 						dos.writeUTF(idpwMessage);
 						isSuspend = true;
-					}else{
+					} else {
 						repaint();
 					}
-//					if(isStop) return;
+					// if(isStop) return;
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

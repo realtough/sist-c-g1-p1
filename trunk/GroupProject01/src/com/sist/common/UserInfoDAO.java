@@ -5,7 +5,7 @@ import java.util.Date;
 import java.sql.*;
 
 //DB랑 통신필요
-public class UserInfoManagerDAO {
+public class UserInfoDAO {
 
 	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
 	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
@@ -17,7 +17,7 @@ public class UserInfoManagerDAO {
 	HashMap<Integer, UserInfoVO> alluserList = new HashMap<Integer, UserInfoVO>();
 
 	// 드라이버 등록
-	public UserInfoManagerDAO() {
+	public UserInfoDAO() {
 		try {
 			Class.forName(ORACLE_DRIVER);
 		} catch (ClassNotFoundException e) {
@@ -131,6 +131,7 @@ public class UserInfoManagerDAO {
 			uiVO.setSex(rs.getString(5).charAt(0));
 			uiVO.setJoinus(rs.getDate(6));
 			uiVO.setNname(rs.getString(7));
+			System.out.println(uiVO.toString());
 		} catch (SQLException e) {
 			// TODO: handle exception
 		} finally {

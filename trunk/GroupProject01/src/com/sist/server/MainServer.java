@@ -13,6 +13,7 @@ public class MainServer extends Thread implements G1Server {
 	ServerForm g1Server;
 	boolean isServerOn = false;
 	private HashMap<String, DataOutputStream> clients; // 현재접속유저
+//	private HashMap<String, BufferedWriter> clients; // 현재접속유저
 
 	public MainServer(ServerForm g1Server) {
 		// 클라이언트의 정보를 저장할 해쉬맵 clients생성 - key는 id, value는 메시지
@@ -64,80 +65,82 @@ public class MainServer extends Thread implements G1Server {
 			try {
 				dis = new DataInputStream(this.socket.getInputStream());
 				dos = new DataOutputStream(this.socket.getOutputStream());
-//				bfReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-//				bfWriter = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+				// bfReader = new BufferedReader(new
+				// InputStreamReader(this.socket.getInputStream()));
+				// bfWriter = new BufferedWriter(new
+				// OutputStreamWriter(this.socket.getOutputStream()));
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ e.getMessage());
 			}
 		}
 
+		/*
+		 * // 1:1메시지 - 보낸사람과 받는사람 두명에게만 전송한다 private void sendTo(String from,
+		 * String to, String msg) { Iterator<String> clientsName =
+		 * clients.keySet().iterator(); while (clientsName.hasNext()) { try {
+		 * String name = clientsName.next(); if (name.equals(from)) {
+		 * DataOutputStream dos = (DataOutputStream) clients .get(name);
+		 * dos.writeUTF("[" + to + "] 님에게 귓속말 : " + msg); } if (name.equals(to))
+		 * { DataOutputStream dos = (DataOutputStream) clients .get(name);
+		 * dos.writeUTF("[" + from + "] 님의 귓속말 : " + msg); } } catch
+		 * (IOException e) { g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER +
+		 * e.getMessage()); } } }
+		 */
+
+		private void sendTo(String from, String to, String msg,
+				boolean isWhisper) {
+			try {
+				if (from.equals("server")) {
+					DataOutputStream dos2 = (DataOutputStream) clients
+							.get(to);
+					dos2.writeUTF("[" + from + "]#" + msg);					
+				} else if (isWhisper) {
+					DataOutputStream dosf = (DataOutputStream) clients.get(from);
+					dosf.writeUTF("[" + to + "] 님에게 귓속말 : " + msg);
+					DataOutputStream dost = (DataOutputStream) clients
+							.get(to);
+					dost.writeUTF("[" + from + "] 님의 귓속말 : " + msg);
+				} else {
+					DataOutputStream dost = (DataOutputStream) clients
+							.get(to);
+					dost.writeUTF("[" + from + "] " + msg);					
+				}
+			} catch (IOException e) {
+				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
+						+ e.getMessage());
+			}
+		}
+
+		// 전체 유저 목록 전송
 		public void sendUserStatus() {
-			g1Server.appendServerLog("현재 접속자 수 : " + clients.size());
+			g1Server.appendServerLog("[메인서버] 현재 접속자 수 : " + clients.size());
 			// 접속한 유저 상황에 변동이 있을경우 (입장, 퇴장시)
-			// 새 접속 유저정보를 전체에 전송한다
+			// 새 접속 유저정보를 전체에 전송한다			
 			Iterator<String> clientsName = clients.keySet().iterator();
 			String userList[] = clients.keySet().toArray(new String[0]);
 
-			String connectedUser = "";
+			String connectedUser = "userlist#";
 			for (int i = 0; i < userList.length; i++) {
-				connectedUser += userList[i] + "|";
-			}
+				connectedUser += userList[i] + "@";				
+			}						
 			while (clientsName.hasNext()) {
-				try {
-					DataOutputStream dos = (DataOutputStream) clients
-							.get(clientsName.next());
-					dos.writeUTF("/sys " + connectedUser);
-				} catch (IOException e) {
-					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
-							+ e.getMessage());
-				}
+				sendTo("server", clientsName.next(), connectedUser, false);
 			}
 		}
-
-		// 1:1메시지 - 보낸사람과 받는사람 두명에게만 전송한다
-		private void sendTo(String from, String to, String msg) {
-			// Iterator는 1회용?
-			Iterator<String> clientsName = clients.keySet().iterator();
-			while (clientsName.hasNext()) {
-				try {
-					String name = clientsName.next();
-					if (name.equals(from)) {
-						DataOutputStream dos = (DataOutputStream) clients
-								.get(name);
-						dos.writeUTF("[" + to + "] 님에게 귓속말 : " + msg);
-					}
-					if (name.equals(to)) {
-						DataOutputStream dos = (DataOutputStream) clients
-								.get(name);
-						dos.writeUTF("[" + from + "] 님의 귓속말 : " + msg);
-					}
-				} catch (IOException e) {
-					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
-							+ e.getMessage());
-				}
-			}
-		}
-
-		// 일반 채팅 - 메시지가 들어오면 접속한 전원에게 전송한다
+		
+		// 메시지가 들어오면 접속한 전원에게 전송한다
 		void sendToAll(String from, String msg) {
 			Iterator<String> clientsName = clients.keySet().iterator();
 			while (clientsName.hasNext()) {
-				try {
-					DataOutputStream dos = (DataOutputStream) clients
-							.get(clientsName.next());
-					dos.writeUTF("[" + from + "] " + msg);
-				} catch (IOException e) {
-					g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
-							+ e.getMessage());
-				}
+				sendTo(from, clientsName.next(), msg, false);
 			}
 		}
 
 		private void classfyMessage(String name, String msg) {
 			String temp[] = msg.split(" ", 3);
 			if (temp[0].equals("/w")) {
-				sendTo(name, temp[1], temp[2]);
+				sendTo(name, temp[1], temp[2], true);
 			} else {
 				sendToAll(name, msg);
 			}
@@ -146,8 +149,8 @@ public class MainServer extends Thread implements G1Server {
 		public void run() {
 			String name = null;
 			try {
-				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장
-				name = dis.readUTF();
+				// 환영메세지 출력후, 접속자 정보를 해쉬맵에 저장				
+				name = dis.readUTF();		
 				clients.put(name, dos);
 				dos.writeUTF("접속하신것을 환영합니다");
 				sendToAll("서버", name + " 님이 입장 하셨습니다");
@@ -169,11 +172,11 @@ public class MainServer extends Thread implements G1Server {
 				sendUserStatus();
 			}
 		}
-		
-		private void closeStream(){
+
+		private void closeStream() {
 			try {
-//				bfReader.close();
-//				bfWriter.close();
+				// bfReader.close();
+				// bfWriter.close();
 				dis.close();
 				dos.close();
 				socket.close();

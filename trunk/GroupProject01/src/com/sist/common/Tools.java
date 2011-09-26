@@ -66,11 +66,11 @@ public class Tools {
 		try {
 			uiVO.setId(temp[0]);
 			uiVO.setPw(temp[1]);
-			uiVO.setC_name(temp[2]);
+			uiVO.setName(temp[2]);
 			uiVO.setBirth(sdFormat.parse(temp[3]));	//ParseException 발생가능
 			uiVO.setSex(temp[4].charAt(0));
 			uiVO.setJoinus(sdFormat.parse(temp[5])); //ParseException 발생가능
-			uiVO.setNname(temp[6]);
+			uiVO.setNickname(temp[6]);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

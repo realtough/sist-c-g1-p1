@@ -26,13 +26,15 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	private JButton jbAccept = new JButton("로그인");
 	private JButton jbCancel = new JButton("나가기");
 	private JButton jbRegister = new JButton("가입");
-	LobbyMain lobby;
-	String id;
-	String pw;
-	String idpwMessage;
-	String userName;
+	private LobbyMain lobby;
+	private String id;
+	private String pw;
+//	private String idpwMessage;
+	private String userName;
 	boolean isSuspend = true;
 	boolean isStop = false;
+	private ClientReceiver crThread;
+	private ClientSender csThread;
 
 	public LobbyLogin(LobbyMain parent) {
 		super(parent, "로그인 하세요", ModalityType.APPLICATION_MODAL);
@@ -68,15 +70,14 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
 			userName = (socket.getLocalAddress() + ":" + socket.getLocalPort())
 					.substring(1);
-			ClientReceiver crThread = new ClientReceiver(socket);
-			ClientSender csThread = new ClientSender(userName, socket);
+			crThread = new ClientReceiver(socket);
+			csThread = new ClientSender(userName, socket);
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {
-			JOptionPane.showMessageDialog(this, "로그인 서버에 접속할 수 없습니다. 서버 상태를 확인하세요");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "로그인 서버에 접속할 수 없습니다. 서버 상태를 확인하세요");
 		}
 	}
 
@@ -85,9 +86,10 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		// 아이디는 맞지만 비밀번호가 틀릴때
 		// 서버와 통신 필요
 		if (checkInfo()) {
-			idpwMessage = "/login " + id + " " + pw;
+			String idpwmsg = "/login " + id + " " + pw;
 			// System.out.println("idpw : " + idpwMessage);
-			isSuspend = false;
+//			isSuspend = false;
+			sendMessage(idpwmsg);
 		}
 	}
 
@@ -129,9 +131,13 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		jtfID.setText("");
 		jpfPW.setText("");
 	}
+
+	public void sendMessage(String msg){
+		csThread.resumeSend(msg);
+	}
 	
 	private void classfyMessage(String msg) {
-//		System.out.println("Receive : " + msg);
+		System.out.println("Receive : " + msg);
 		String msgtemp[] = msg.split("#", 3);
 		if (msgtemp[0].equals("[login]")) {
 			switch (Integer.parseInt(msgtemp[1])) {
@@ -183,16 +189,29 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	}
 
 	class ClientSender extends Thread {
-		Socket socket;
-		DataOutputStream dos;
-		String name;
-
+		private Socket socket;
+		private DataOutputStream dos;
+		private String name;
+		private String message;
+		private boolean isSenderSuspend;
+		
+		public void suspendSend(){
+			message = "";
+			isSenderSuspend = true;			
+		}
+		
+		public void resumeSend(String msg){
+			message = msg;
+			isSenderSuspend = false;
+		}
+		
 		public ClientSender(String userName, Socket socket) {
 			// socket의 output 스트림에 write한다
+			suspendSend();
 			this.socket = socket;
 			this.name = userName;
 			try {
-				dos = new DataOutputStream(socket.getOutputStream());
+				dos = new DataOutputStream(this.socket.getOutputStream());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -205,10 +224,12 @@ public class LobbyLogin extends JDialog implements ActionListener {
 					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 				}
 				while (dos != null) {					 
-					if (!isSuspend) {
-//						System.out.println("Send : " + idpwMessage);
-						dos.writeUTF(idpwMessage);
-						isSuspend = true;
+					if (!isSenderSuspend) {
+						System.out.println("Send : " + message);
+//						dos.writeUTF(idpwMessage);
+//						isSuspend = true;
+						dos.writeUTF(message);						
+						suspendSend();
 					} else {
 						repaint();
 					}

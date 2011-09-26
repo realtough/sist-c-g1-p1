@@ -104,7 +104,9 @@ public class LoginServer extends Thread implements G1Server {
 					break;
 				}
 			} else if (temp[0].equals("/regist")) {
-
+				// DAO를 불러와 가입절차 처리
+				UserInfoVO uiVO = Tools.stringToUserInfo(temp[1]);
+				uiManager.insertUser(uiVO);
 			}
 		}
 

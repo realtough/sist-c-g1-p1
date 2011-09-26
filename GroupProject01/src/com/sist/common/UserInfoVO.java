@@ -7,11 +7,11 @@ import java.util.Date;
 public class UserInfoVO {
 	private String id;
 	private String pw;
-	private String c_name;
+	private String name;
 	private Date birth;
 	private char sex;
 	private Date joinus;
-	private String nname;	
+	private String nickname;	
 	
 	public String getId() {
 		return id;
@@ -25,11 +25,11 @@ public class UserInfoVO {
 	public void setPw(String pw) {
 		this.pw = pw;
 	}
-	public String getC_name() {
-		return c_name;
+	public String getName() {
+		return name;
 	}
-	public void setC_name(String c_name) {
-		this.c_name = c_name;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public Date getBirth() {
 		return birth;
@@ -49,11 +49,11 @@ public class UserInfoVO {
 	public void setJoinus(Date joinus) {
 		this.joinus = joinus;
 	}
-	public String getNname() {
-		return nname;
+	public String getNickname() {
+		return nickname;
 	}
-	public void setNname(String nname) {
-		this.nname = nname;
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	@Override
 	//VO객체의 모든값을 식별자로 묶어 하나의 문자열로 출력
@@ -61,6 +61,6 @@ public class UserInfoVO {
 	public String toString() {
 		String regex = "@";
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		return id+regex+pw+regex+c_name+regex+sdf.format(birth)+regex+sex+regex+sdf.format(joinus)+regex+nname;
+		return id+regex+pw+regex+name+regex+sdf.format(birth)+regex+sex+regex+sdf.format(joinus)+regex+nickname;
 	}	
 }//class

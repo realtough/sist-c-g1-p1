@@ -159,7 +159,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			myVO = Tools.stringToUserInfo(userName);					
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			ClientReceiver crThread = new ClientReceiver(socket);
-			ClientSender csThread = new ClientSender(myVO.getNname(), socket);
+			ClientSender csThread = new ClientSender(myVO.getNickname(), socket);
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {

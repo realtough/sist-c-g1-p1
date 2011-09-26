@@ -57,10 +57,10 @@ public class UserInfoDAO {
 			pStatement = dbConnection.prepareStatement(sql);
 			pStatement.setString(1, uiVO.getId());
 			pStatement.setString(2, uiVO.getPw());
-			pStatement.setString(3, uiVO.getC_name());
+			pStatement.setString(3, uiVO.getName());
 			pStatement.setDate(4, (java.sql.Date)uiVO.getBirth());
 			pStatement.setString(5, String.valueOf(uiVO.getSex()));
-			pStatement.setString(6, uiVO.getNname());
+			pStatement.setString(6, uiVO.getNickname());
 			pStatement.executeQuery();			
 		} catch (SQLException e) {
 			// TODO: handle exception
@@ -84,18 +84,18 @@ public class UserInfoDAO {
 		ArrayList<UserInfoVO> allUser = new ArrayList<UserInfoVO>();
 		try {
 			connectDB();
-			String sql = "select id, pw, c_name, birth, sex, joinus, nname from customer";
+			String sql = "select id, pw, name, birth, sex, joinus, nickname from customer";
 			pStatement = dbConnection.prepareStatement(sql);
 			ResultSet rs = pStatement.executeQuery();
 			while(rs.next()){
 				UserInfoVO uiVO =new UserInfoVO();
 				uiVO.setId(rs.getString(1));
 				uiVO.setPw(rs.getString(2));
-				uiVO.setC_name(rs.getString(3));
+				uiVO.setName(rs.getString(3));
 				uiVO.setBirth(rs.getDate(4));
 				uiVO.setSex(rs.getString(5).charAt(0));
 				uiVO.setJoinus(rs.getDate(6));
-				uiVO.setNname(rs.getString(7));
+				uiVO.setNickname(rs.getString(7));
 				allUser.add(uiVO);
 			}
 			rs.close();
@@ -126,18 +126,23 @@ public class UserInfoDAO {
 			rs.next();
 			uiVO.setId(rs.getString(1));
 			uiVO.setPw(rs.getString(2));
-			uiVO.setC_name(rs.getString(3));
+			uiVO.setName(rs.getString(3));
 			uiVO.setBirth(rs.getDate(4));
 			uiVO.setSex(rs.getString(5).charAt(0));
 			uiVO.setJoinus(rs.getDate(6));
-			uiVO.setNname(rs.getString(7));
-			System.out.println(uiVO.toString());
+			uiVO.setNickname(rs.getString(7));			
 		} catch (SQLException e) {
 			// TODO: handle exception
 		} finally {
 			disconnectDB();
 		}
 		return uiVO;
+	}
+	
+	public boolean isExist(String ident, String msg){
+		boolean bCheck = false;
+		
+		return bCheck;
 	}
 
 	// 로그인서버로 부터 받은 정보 검증

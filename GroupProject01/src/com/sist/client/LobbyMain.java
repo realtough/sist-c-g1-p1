@@ -13,6 +13,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.sist.common.Tools;
+import com.sist.common.UserInfoVO;
 
 //로비화면의 실제 폼과 기능 구현
 public class LobbyMain extends JFrame implements ActionListener, G1Client {
@@ -67,7 +68,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	private boolean sendSuspend = true;
 	private boolean isChatMaximized = false;
-
+	UserInfoVO myVO;	
+	
 	public LobbyMain() {
 		super("Mini Game");
 
@@ -108,7 +110,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		jtaChatList.setLineWrap(true);
 		jbChatListBar = jsChatList.getVerticalScrollBar();
 		jtaChatList.setEditable(false);
-		jpChat.setLayout(new GridBagLayout());		
+		jpChat.setLayout(new GridBagLayout());
 		Tools.insert(jpChat, jsChatList, 0, 0, 1, 1, 1.0, 0.9);
 		Tools.insert(jpChat, jtfChatInput, 0, 1, 1, 1, 1.0, 0.1);
 		jpChatButtonPanel.add(jbChatMaximize);
@@ -154,9 +156,10 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public void clientStart(String userName) {
 		try {
+			myVO = Tools.stringToUserInfo(userName);					
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			ClientReceiver crThread = new ClientReceiver(socket);
-			ClientSender csThread = new ClientSender(userName, socket);
+			ClientSender csThread = new ClientSender(myVO.getNname(), socket);
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {
@@ -170,6 +173,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	private void appendChatLog(String msg) {
 		jtaChatList.append(msg + "\n");
+		jtaChatScreen.append(msg + "\n");
 		jbChatListBar.setValue(jbChatListBar.getMaximum());
 	}
 
@@ -183,6 +187,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		if (ob == jmLogin) {
 			lLogin.lobbyLoginStart();
 			lLogin.setVisible(true);
+			lLogin.clearForm();
 		} else if (ob == jmExit) {
 			System.exit(0);
 		}
@@ -200,12 +205,13 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		private Socket socket;
 		private DataInputStream dis;
 		private BufferedReader bfReader;
-		
+
 		public ClientReceiver(Socket socket) {
 			this.socket = socket;
 			try {
 				dis = new DataInputStream(this.socket.getInputStream());
-//				bfReader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));				
+				bfReader = new BufferedReader(new InputStreamReader(
+						this.socket.getInputStream()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -215,7 +221,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		public void run() {
 			try {
 				while (dis != null) {
-					// appendChatLog(dis.readUTF());					
 					classfyMessage(dis.readUTF());
 				}
 			} catch (IOException ioe) {
@@ -224,11 +229,11 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			} finally {
 				closeStream();
 			}
-		} 
-		
-		private void closeStream(){
+		}
+
+		private void closeStream() {
 			try {
-//				bfReader.close();
+				// bfReader.close();
 				dis.close();
 				socket.close();
 			} catch (IOException e) {
@@ -237,18 +242,22 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			}
 		}
 
-		private void classfyMessage(String msg) {
-			String msgtemp[] = msg.split(" ", 3);
-			if (msgtemp[0].equals("/sys")) {
-				// 접속유저 목록은 "|"를 식별자로 하나의 문자열로 합쳐져 있으므로 이를 분리한다
-				String userList[] = msgtemp[1].split("\\|");
-				// 테이블은 부분 수정이 불가능하므로 테이블 삭제후 다시 전체 유저목록을 삽입한다
-				for (int i = dtModel.getRowCount() - 1; i >= 0; i--) {
-					dtModel.removeRow(i);
-				}
-				for (int i = 0; i < userList.length; i++) {
-					String temp[] = { userList[i], "신병" };
-					dtModel.addRow(temp);
+		private void classfyMessage(String msg) {			
+			String msgtemp[] = msg.split("#", 3);
+			if (msgtemp[0].equals("[server]")) {
+				if (msgtemp[1].equals("userlist")) {
+					// 접속유저 목록은 "|"를 식별자로 하나의 문자열로 합쳐져 있으므로 이를 분리한다
+					String userList[] = msgtemp[2].split("@");
+					// 테이블은 부분 수정이 불가능하므로 테이블 삭제후 다시 전체 유저목록을 삽입한다
+					for (int i = dtModel.getRowCount() - 1; i >= 0; i--) {
+						dtModel.removeRow(i);
+					}
+					for (int i = 0; i < userList.length; i++) {
+						String temp[] = { userList[i], "신병" };
+						dtModel.addRow(temp);
+					}
+				} else if(msgtemp[1].equals("userinfo")){
+					
 				}
 			} else {
 				appendChatLog(msg);
@@ -268,7 +277,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			this.name = userName;
 			try {
 				dos = new DataOutputStream(this.socket.getOutputStream());
-//				bfWriter = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+				bfWriter = new BufferedWriter(new OutputStreamWriter(
+						this.socket.getOutputStream()));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -278,15 +288,15 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		public void run() {
 			try {
 				if (dos != null) {
-					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다					
-//					bfWriter.write(name);
-//					bfWriter.flush();
+					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
+					// bfWriter.write(name);
+					// bfWriter.flush();
 				}
 				while (dos != null) {
 					if (!sendSuspend) {
 						dos.writeUTF(jtfChatInput.getText());
-//						bfWriter.write(jtfChatInput.getText().trim());
-//						bfWriter.flush();
+						// bfWriter.write(jtfChatInput.getText().trim());
+						// bfWriter.flush();
 						jtfChatInput.setText("");
 						sendSuspend = true;
 					}
@@ -298,16 +308,16 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 				closeStream();
 			}
 		}
-		
-		private void closeStream(){			
+
+		private void closeStream() {
 			try {
-//				bfWriter.close();
+				// bfWriter.close();
 				dos.close();
 				socket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}			
+			}
 		}
-	}//ClientSender
-}//class
+	}// ClientSender
+}// class

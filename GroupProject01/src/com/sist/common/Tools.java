@@ -61,7 +61,7 @@ public class Tools {
 		
 		SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd");
 		UserInfoVO uiVO = new UserInfoVO();		
-		String temp[] = uimsg.split("#", 7);		
+		String temp[] = uimsg.split("@", 7);		
 
 		try {
 			uiVO.setId(temp[0]);

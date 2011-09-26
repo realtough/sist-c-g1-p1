@@ -59,7 +59,7 @@ public class UserInfoVO {
 	//VO객체의 모든값을 식별자로 묶어 하나의 문자열로 출력
 	//네트워크로 전송할시 문자열 전송 한가지로만 처리하기 위함
 	public String toString() {
-		String regex = "#";
+		String regex = "@";
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return id+regex+pw+regex+c_name+regex+sdf.format(birth)+regex+sex+regex+sdf.format(joinus)+regex+nname;
 	}	

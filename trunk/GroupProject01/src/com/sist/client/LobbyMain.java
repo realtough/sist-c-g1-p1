@@ -24,7 +24,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	// 로그인과 가입 폼 다이얼로그 선언
 	private LobbyLogin lLogin;
-//	private LobbyRegister lRegister;
 
 	// 보더효과와 카드레이아웃 설정
 	private Border bdMainEdge = BorderFactory
@@ -66,12 +65,11 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	private JButton jbChatMinimize = new JButton("▽");
 	private JScrollBar jsBar;
 
-//	private boolean sendSuspend = true;
 	private boolean isChatMaximized = false;
 	UserInfoVO myVO;
 	ClientReceiver crThread;
 	ClientSender csThread;
-	
+
 	public LobbyMain() {
 		super("Mini Game");
 
@@ -97,8 +95,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		// Test//
 		jpRightTab.setBackground(Color.RED);
 		jsBar = jsChatScreenPane.getVerticalScrollBar();
-		// jpChat.setBackground(Color.GREEN);
-		// jpGameMain.setBackground(Color.BLUE);
 		// Test//
 
 		// GameSelect패널 설정
@@ -143,7 +139,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		setBounds(framePosition.width, framePosition.height, frameSize.width,
 				frameSize.height);
 		lLogin = new LobbyLogin(this);
-//		lRegister = new LobbyRegister(lLogin);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);
@@ -158,7 +153,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public void clientStart(String userName) {
 		try {
-			myVO = Tools.stringToUserInfo(userName);					
+			myVO = Tools.stringToUserInfo(userName);
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			crThread = new ClientReceiver(socket);
 			csThread = new ClientSender(myVO.getNickname(), socket);
@@ -172,8 +167,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			e.printStackTrace();
 		}
 	}
-	
-	public void sendMessage(String msg){
+
+	public void sendMessage(String msg) {
 		csThread.resumeSend(msg);
 		jtfChatInput.setText("");
 	}
@@ -187,8 +182,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public static void main(String[] args) {
 		new LobbyMain();
-	}	
-	
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
@@ -200,7 +195,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			System.exit(0);
 		}
 		if (ob == jtfChatInput) {
-//			sendSuspend = false;
 			sendMessage(jtfChatInput.getText().trim());
 		}
 		if (ob == jbChatMaximize) {
@@ -212,13 +206,11 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	class ClientReceiver extends Thread {
 		private Socket socket;
-		private DataInputStream dis;
 		private BufferedReader bfReader;
 
 		public ClientReceiver(Socket socket) {
 			this.socket = socket;
 			try {
-				dis = new DataInputStream(this.socket.getInputStream());
 				bfReader = new BufferedReader(new InputStreamReader(
 						this.socket.getInputStream()));
 			} catch (IOException e) {
@@ -229,8 +221,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 		public void run() {
 			try {
-				while (dis != null) {
-					classfyMessage(dis.readUTF());
+				while (bfReader != null) {
+					classfyMessage(bfReader.readLine());
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
@@ -242,8 +234,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 		private void closeStream() {
 			try {
-				// bfReader.close();
-				dis.close();
+				bfReader.close();
 				socket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -251,7 +242,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			}
 		}
 
-		private void classfyMessage(String msg) {			
+		private void classfyMessage(String msg) {
 			String msgtemp[] = msg.split("#", 3);
 			if (msgtemp[0].equals("[server]")) {
 				if (msgtemp[1].equals("userlist")) {
@@ -265,8 +256,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 						String temp[] = { userList[i], "신병" };
 						dtModel.addRow(temp);
 					}
-				} else if(msgtemp[1].equals("userinfo")){
-					
+				} else if (msgtemp[1].equals("userinfo")) {
+
 				}
 			} else {
 				appendChatLog(msg);
@@ -276,7 +267,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	class ClientSender extends Thread {
 		private Socket socket;
-		private DataOutputStream dos;
 		private BufferedWriter bfWriter;
 		private String name;
 		private boolean isSenderSuspend;
@@ -287,7 +277,6 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			this.socket = socket;
 			this.name = userName;
 			try {
-				dos = new DataOutputStream(this.socket.getOutputStream());
 				bfWriter = new BufferedWriter(new OutputStreamWriter(
 						this.socket.getOutputStream()));
 			} catch (IOException e) {
@@ -298,22 +287,19 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 		public void run() {
 			try {
-				if (dos != null) {
-					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
-					// bfWriter.write(name);
-					// bfWriter.flush();
+				if (bfWriter != null) {
+					bfWriter.write(name + "\n");
+					if (bfWriter != null)
+						bfWriter.flush();
 					suspendSend();
 				}
-				while (dos != null) {
-//					if (!sendSuspend) {
-					if (!isSenderSuspend){
-						dos.writeUTF(outputMessage);
-						// bfWriter.write(jtfChatInput.getText().trim());
-						// bfWriter.flush();						
-//						sendSuspend = true;
+				while (bfWriter != null) {
+					if (!isSenderSuspend) {
+						bfWriter.write(outputMessage + "\n");
+						if (bfWriter != null)
+							bfWriter.flush();
 						suspendSend();
 					}
-//					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -323,20 +309,19 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			}
 		}
 
-		public void suspendSend(){
+		public void suspendSend() {
 			outputMessage = "";
 			isSenderSuspend = true;
 		}
-		
-		public void resumeSend(String msg){
+
+		public void resumeSend(String msg) {
 			outputMessage = msg;
 			isSenderSuspend = false;
 		}
-		
+
 		private void closeStream() {
 			try {
-				// bfWriter.close();
-				dos.close();
+				bfWriter.close();
 				socket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

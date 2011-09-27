@@ -11,7 +11,7 @@ import javax.swing.*;
 
 import com.sist.common.Tools;
 
-//로그인과 유저정보 관리를 별도 서버로 분리할지 고려할것
+// 로그인과 메인서버의 로그를 출력하는 폼
 public class ServerForm extends JFrame implements ActionListener {
 	private Dimension dSize = new Dimension(640, 600);
 	private Dimension dPosition = new Dimension(

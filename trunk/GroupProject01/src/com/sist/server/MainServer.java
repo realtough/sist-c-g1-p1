@@ -6,20 +6,17 @@ import java.util.*;
 
 import com.sist.common.Tools;
 
-//로그인 이후 모든 통신 처리. 전체, 1:1, 1:M 전달 기능 구현할것
-//클라이언트로부터 받은 닉네임을  키로, 전달받은 메시지를 값으로 받는 해쉬맵에
-//유저정보 저장
+//로그인 이후 모든 통신 처리. 전체, 1:1, 1:M 전달 기능 구현
+//클라이언트의 닉네임을  키로, 메시지 전달용 출력스트림을 값으로 하여 해쉬맵에 저장
 public class MainServer extends Thread implements G1Server {
 	ServerForm g1Server;
 	boolean isServerOn = false;
 	private HashMap<String, BufferedWriter> clients; // 현재접속유저
 
 	public MainServer(ServerForm g1Server) {
-		// 클라이언트의 정보를 저장할 해쉬맵 clients생성 - key는 id, value는 메시지
-		// Thread Safe 상태로 만든다
 		this.g1Server = g1Server;
 		clients = new HashMap<String, BufferedWriter>();
-		Collections.synchronizedMap(clients);
+		Collections.synchronizedMap(clients);	// Thread Safe 상태로 만든다
 	}
 
 	private void chatServerStart() {
@@ -81,12 +78,12 @@ public class MainServer extends Thread implements G1Server {
 					BufferedWriter bwf = clients.get(from);
 					message = "[" + to + "] 님에게 귓속말 : " + msg + "\n";
 					bwf.write(message);
-					bwf.flush();
+					if(bw != null) bwf.flush();
 				} else {	
 					message = "[" + from + "] 님의 귓속말 : " + msg + "\n";					
 				}
 				bw.write(message);
-				bw.flush();
+				if(bw != null) bw.flush();
 				message = "";
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
@@ -111,7 +108,7 @@ public class MainServer extends Thread implements G1Server {
 			}
 		}
 		
-		// 메시지가 들어오면 접속한 전원에게 전송한다
+		// 접속한 전원에게 전송
 		void sendToAll(String from, String msg) {
 			Iterator<String> clientsName = clients.keySet().iterator();
 			while (clientsName.hasNext()) {
@@ -119,6 +116,7 @@ public class MainServer extends Thread implements G1Server {
 			}
 		}
 
+		// 전송받은 메시지의 처리를 위한 분류
 		private void classfyMessage(String name, String msg) {
 			String temp[] = msg.split(" ", 3);
 			if (temp[0].equals("/w")) {
@@ -138,7 +136,7 @@ public class MainServer extends Thread implements G1Server {
 				bfWriter.flush();
 				sendToAll("서버", name + " 님이 입장 하셨습니다");
 				sendUserStatus();
-				// 입력 스트림 내용을 반복하여 클라이언트 전체에 전송한다
+				// 반복하며 입력받은 메시지를 분류 
 				while (bfReader != null){
 					classfyMessage(name, bfReader.readLine());
 				}

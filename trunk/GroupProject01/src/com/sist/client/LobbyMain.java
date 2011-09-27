@@ -66,9 +66,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	private JScrollBar jsBar;
 
 	private boolean isChatMaximized = false;
-	UserInfoVO myVO;
-	ClientReceiver crThread;
-	ClientSender csThread;
+	private UserInfoVO myVO;
+	private ClientSender csThread;
 
 	public LobbyMain() {
 		super("Mini Game");
@@ -155,7 +154,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		try {
 			myVO = Tools.stringToUserInfo(userName);
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
-			crThread = new ClientReceiver(socket);
+			ClientReceiver crThread = new ClientReceiver(socket);
 			csThread = new ClientSender(myVO.getNickname(), socket);
 			crThread.start();
 			csThread.start();

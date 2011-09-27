@@ -148,7 +148,7 @@ public class LoginServer extends Thread implements G1Server {
 			} finally { // 퇴장시 처리
 				tempUserList.remove(name);
 				// sendTo(name, " 로그인 서버와 연결 종료");
-				// closeStream();
+				closeStream();
 				g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name
 						+ " 로그인 세션 종료");
 			}

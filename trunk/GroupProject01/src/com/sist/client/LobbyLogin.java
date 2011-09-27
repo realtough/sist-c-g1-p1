@@ -32,8 +32,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 //	private String idpwMessage;
 	private String userName;
 	boolean isSuspend = true;
-	boolean isStop = false;
-	private ClientReceiver crThread;
+	boolean isStop = false;	
 	private ClientSender csThread;
 	private LobbyRegister lbRegister;
 
@@ -71,7 +70,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			Socket socket = new Socket(Tools.serverIp, Tools.LOGIN_SERVER_PORT);
 			userName = (socket.getLocalAddress() + ":" + socket.getLocalPort())
 					.substring(1);
-			crThread = new ClientReceiver(socket);
+			ClientReceiver crThread = new ClientReceiver(socket);
 			csThread = new ClientSender(userName, socket);
 			crThread.start();
 			csThread.start();
@@ -88,8 +87,6 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		// 서버와 통신 필요
 		if (checkInfo()) {
 			String idpwmsg = "/login " + id + " " + pw;
-			// System.out.println("idpw : " + idpwMessage);
-//			isSuspend = false;
 			sendMessage(idpwmsg);
 		}
 	}
@@ -120,7 +117,6 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			dispose();
 		} else if (ob == jbRegister) {
 			setVisible(false);
-//			new LobbyRegister(this).setVisible(true);
 			lbRegister = new LobbyRegister(this);
 			lbRegister.setVisible(true);
 		} else if (ob == jtfID) {
@@ -237,7 +233,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		public void run() {
 			try {
 				if (dos != null) {
-					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
+					dos.writeUTF(name); //아이피와포트번호를 결합한 임시 이름 전송
 				}
 				while (dos != null) {					 
 					if (!isSenderSuspend) {

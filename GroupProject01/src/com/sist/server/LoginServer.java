@@ -17,6 +17,7 @@ public class LoginServer extends Thread implements G1Server {
 	// 유저정보 처리를 담당할 uiManager객체 생성
 	private UserInfoDAO uiManager = new UserInfoDAO();
 	private HashMap<String, DataOutputStream> tempUserList = new HashMap<String, DataOutputStream>();
+//	private HashMap<String, BufferedWriter> tempUserList = new HashMap<String, BufferedWriter>();
 
 	public LoginServer(ServerForm g1Server) {
 		this.g1Server = g1Server;
@@ -119,9 +120,8 @@ public class LoginServer extends Thread implements G1Server {
 
 		private void sendTo(String from, String to, String msg) {
 			try {
-				DataOutputStream dos2 = (DataOutputStream) tempUserList.get(to);
-				dos2.writeUTF("["+from+"]#" + msg);
-				g1Server.appendServerLog("[" + "로그인서버" + "]#" + msg);
+				DataOutputStream dos2 = tempUserList.get(to);
+				dos2.writeUTF("["+from+"]#" + msg);				
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
 						+ e.getMessage());

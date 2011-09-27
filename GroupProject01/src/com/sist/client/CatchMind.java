@@ -2,7 +2,6 @@ package com.sist.client;
 import javax.security.auth.callback.LanguageCallback;
 import javax.swing.*;
 
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -11,7 +10,7 @@ public class CatchMind extends JFrame implements ActionListener {
 	PaintBoard pb = new PaintBoard();
 	
 	JTextField answer2,write,id,sex;
-	JButton alldelete,outbt;
+	JButton alldelete,outbt,newgame;
 	JLabel answer;
 	JTextPane chatting;
 	JPanel board;//그림판
@@ -32,6 +31,7 @@ public class CatchMind extends JFrame implements ActionListener {
 		outbt=new JButton("나가기");  //나가기 버튼	
 		chatting=new JTextPane(); //채팅이나오는 패널
 		board=new JPanel(); //그림판
+		newgame=new JButton("새게임");
 		
 	
 		
@@ -53,9 +53,10 @@ public class CatchMind extends JFrame implements ActionListener {
 		p2.add("South",p1);
 		
 		JPanel p3=new JPanel();
-		p3.setLayout(new GridLayout(3,1));
+		p3.setLayout(new GridLayout(4,1));
+		p3.add(newgame);
 		p3.add(id);
-		p3.add(sex);
+		p3.add(sex);	
 		p3.add(outbt);
 		
 		JPanel p4=new JPanel();
@@ -86,7 +87,7 @@ public class CatchMind extends JFrame implements ActionListener {
 		}
 	
 	
-	class PaintBoard extends JPanel implements MouseMotionListener {
+	class PaintBoard extends JPanel implements MouseMotionListener {//패인트 박스
 		
 		int x=0;
 		int y=0;
@@ -146,10 +147,10 @@ public class CatchMind extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==alldelete){
+		if(e.getSource()==alldelete){	// 페인트 전체 지움 창
 			pb.painting();	
 		}
-		else if(e.getSource()==answer2){
+		else if(e.getSource()==answer2){	//정답 창
 			answer2.setEditable(false);
 			realanswer=answer2.getText().trim();
 			if(realanswer.length()==0){

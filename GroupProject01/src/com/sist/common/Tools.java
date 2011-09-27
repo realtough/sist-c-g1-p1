@@ -4,6 +4,7 @@ import java.awt.*;
 import java.sql.*;
 import java.text.*;
 
+//공통적으로 사용할 수 있는 기능들을 모아놓은 클래스
 public class Tools {
 	private static Toolkit myTK = Toolkit.getDefaultToolkit();
 	public static final int centerX = myTK.getScreenSize().width / 2;
@@ -55,7 +56,7 @@ public class Tools {
 		cnt.add(cmp, gbc);
 	}	
 	
-	//UserInfoVO의 toString()메소드로 생성된 특정 문자열을 다시 VO객체로 변환하기 위한 메소드
+	//UserInfoVO의 toString()메소드로 생성된 문자열을  VO객체로 재변환하는 메소드
 	//네트워크로 전송받은 문자열을 VO객체로 환원해 사용하기 위함
 	public static UserInfoVO stringToUserInfo(String uimsg){
 		

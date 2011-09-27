@@ -4,10 +4,11 @@ import java.util.*;
 import java.util.Date;
 import java.sql.*;
 
-//DB랑 통신필요
+//DB연동 처리 클래스
 public class UserInfoDAO {
 
-	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
+//	private final String ORACLE_URL = "jdbc:oracle:thin:@localhost:1521:xe";	
+	private final String ORACLE_URL = "jdbc:oracle:thin:@211.238.142.116:1521:xe";
 	private final String ORACLE_DRIVER = "oracle.jdbc.driver.OracleDriver";
 	private final String ORACLE_ID = "hoon";	
 	private final String ORACLE_PW = "sistc";
@@ -79,6 +80,7 @@ public class UserInfoDAO {
 	}
 
 	// 전체 회원 목록
+	// ArrayList에 저장해 리턴
 	public ArrayList<UserInfoVO> userAllList() {
 		ArrayList<UserInfoVO> allUser = new ArrayList<UserInfoVO>();
 		try {
@@ -106,7 +108,7 @@ public class UserInfoDAO {
 		return allUser;
 	}
 	
-	//로그인한 유저의 세부 정보를 얻는다
+	//ID로 유저의 세부 정보를 얻는다
 	public UserInfoVO getUserInfo(String id){
 		UserInfoVO uiVO = new UserInfoVO();
 		try {
@@ -131,7 +133,7 @@ public class UserInfoDAO {
 		return uiVO;
 	}
 	
-	//가입전 중복ID검사
+	// 중복 요소 검사
 	public boolean isExist(String ident, String msg){
 		boolean bCheck = false;
 		try {			
@@ -143,7 +145,6 @@ public class UserInfoDAO {
 				sql = "select count(*) from customer where nickname like ?";
 			}			
 			pStatement = dbConnection.prepareStatement(sql);
-//			pStatement.setString(1, ident);
 			pStatement.setString(1, msg);			
 			ResultSet rs = pStatement.executeQuery();
 			rs.next();

@@ -3,7 +3,7 @@ package com.sist.common;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//유저정보 클래스
+//유저정보 VO클래스
 public class UserInfoVO {
 	private String id;
 	private String pw;

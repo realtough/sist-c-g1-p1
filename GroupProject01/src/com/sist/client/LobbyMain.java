@@ -68,7 +68,9 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	private boolean sendSuspend = true;
 	private boolean isChatMaximized = false;
-	UserInfoVO myVO;	
+	UserInfoVO myVO;
+	ClientReceiver crThread;
+	ClientSender csThread;
 	
 	public LobbyMain() {
 		super("Mini Game");
@@ -158,8 +160,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		try {
 			myVO = Tools.stringToUserInfo(userName);					
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
-			ClientReceiver crThread = new ClientReceiver(socket);
-			ClientSender csThread = new ClientSender(myVO.getNickname(), socket);
+			crThread = new ClientReceiver(socket);
+			csThread = new ClientSender(myVO.getNickname(), socket);
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {
@@ -170,6 +172,11 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			e.printStackTrace();
 		}
 	}
+	
+	public void sendMessage(String msg){
+		csThread.resumeSend(msg);
+		jtfChatInput.setText("");
+	}
 
 	private void appendChatLog(String msg) {
 		jtaChatList.append(msg + "\n");
@@ -179,8 +186,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public static void main(String[] args) {
 		new LobbyMain();
-	}
-
+	}	
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
@@ -193,6 +200,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		}
 		if (ob == jtfChatInput) {
 			sendSuspend = false;
+			sendMessage(jtfChatInput.getText().trim());
 		}
 		if (ob == jbChatMaximize) {
 			card.show(jpGameMain, "CHATSCREEN");
@@ -270,6 +278,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		private DataOutputStream dos;
 		private BufferedWriter bfWriter;
 		private String name;
+		private boolean isSenderSuspend;
+		private String outputMessage = "";
 
 		public ClientSender(String userName, Socket socket) {
 			// socket의 output 스트림에 write한다
@@ -291,15 +301,18 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 					dos.writeUTF(name); // 최초 접속시 이름을 먼저 전송한다
 					// bfWriter.write(name);
 					// bfWriter.flush();
+					suspendSend();
 				}
 				while (dos != null) {
-					if (!sendSuspend) {
-						dos.writeUTF(jtfChatInput.getText());
+//					if (!sendSuspend) {
+					if (!isSenderSuspend){
+						dos.writeUTF(outputMessage);
 						// bfWriter.write(jtfChatInput.getText().trim());
-						// bfWriter.flush();
-						jtfChatInput.setText("");
-						sendSuspend = true;
+						// bfWriter.flush();						
+//						sendSuspend = true;
+						suspendSend();
 					}
+//					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -309,6 +322,16 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			}
 		}
 
+		public void suspendSend(){
+			outputMessage = "";
+			isSenderSuspend = true;
+		}
+		
+		public void resumeSend(String msg){
+			outputMessage = msg;
+			isSenderSuspend = false;
+		}
+		
 		private void closeStream() {
 			try {
 				// bfWriter.close();

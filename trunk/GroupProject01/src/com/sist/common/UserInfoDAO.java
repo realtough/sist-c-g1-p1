@@ -56,7 +56,8 @@ public class UserInfoDAO {
 			pStatement.setString(1, uiVO.getId());
 			pStatement.setString(2, uiVO.getPw());
 			pStatement.setString(3, uiVO.getName());
-			pStatement.setDate(4, (java.sql.Date)uiVO.getBirth());
+			long time = uiVO.getBirth().getTime();
+			pStatement.setDate(4, new java.sql.Date(time));			
 			pStatement.setString(5, String.valueOf(uiVO.getSex()));
 			pStatement.setString(6, uiVO.getNickname());
 			pStatement.executeQuery();			

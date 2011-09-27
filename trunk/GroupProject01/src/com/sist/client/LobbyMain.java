@@ -66,7 +66,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 	private JButton jbChatMinimize = new JButton("¡ä");
 	private JScrollBar jsBar;
 
-	private boolean sendSuspend = true;
+//	private boolean sendSuspend = true;
 	private boolean isChatMaximized = false;
 	UserInfoVO myVO;
 	ClientReceiver crThread;
@@ -182,6 +182,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		jtaChatList.append(msg + "\n");
 		jtaChatScreen.append(msg + "\n");
 		jbChatListBar.setValue(jbChatListBar.getMaximum());
+		jsBar.setValue(jsBar.getMaximum());
 	}
 
 	public static void main(String[] args) {
@@ -199,7 +200,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 			System.exit(0);
 		}
 		if (ob == jtfChatInput) {
-			sendSuspend = false;
+//			sendSuspend = false;
 			sendMessage(jtfChatInput.getText().trim());
 		}
 		if (ob == jbChatMaximize) {

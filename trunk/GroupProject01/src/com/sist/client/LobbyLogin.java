@@ -35,6 +35,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	boolean isStop = false;
 	private ClientReceiver crThread;
 	private ClientSender csThread;
+	private LobbyRegister lbRegister;
 
 	public LobbyLogin(LobbyMain parent) {
 		super(parent, "로그인 하세요", ModalityType.APPLICATION_MODAL);
@@ -119,7 +120,9 @@ public class LobbyLogin extends JDialog implements ActionListener {
 			dispose();
 		} else if (ob == jbRegister) {
 			setVisible(false);
-			new LobbyRegister(this).setVisible(true);
+//			new LobbyRegister(this).setVisible(true);
+			lbRegister = new LobbyRegister(this);
+			lbRegister.setVisible(true);
 		} else if (ob == jtfID) {
 			jpfPW.requestFocus();
 		} else if (ob == jpfPW) {
@@ -137,7 +140,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	}
 	
 	private void classfyMessage(String msg) {
-		System.out.println("Receive : " + msg);
+//		System.out.println("Receive : " + msg);
 		String msgtemp[] = msg.split("#", 3);
 		if (msgtemp[0].equals("[login]")) {
 			switch (Integer.parseInt(msgtemp[1])) {
@@ -157,6 +160,21 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				JOptionPane.showMessageDialog(this, "비정상 오류 발생 - 창을 닫고 다시 시도하세요");
 				break;
 			}
+		} else if(msgtemp[0].equals("[regist]")){			
+			if(msgtemp[1].equals("check")){			
+				switch(Integer.parseInt(msgtemp[2])){
+				case 11:
+					//확인된 경우					
+					JOptionPane.showMessageDialog(lbRegister, "확인 되었습니다");
+					lbRegister.unlockInput();
+					break;
+				case 22:
+					//중복이 있을 경우			
+					JOptionPane.showMessageDialog(lbRegister, "중복 됩니다. 다시 입력하세요");
+					//lbRegister.clearNickForm();
+					break;
+				}
+			}		
 		}
 	}
 
@@ -177,9 +195,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		public void run() {
 			try {
 				while (dis != null) {
-					// appendChatLog(dis.readUTF());
 					classfyMessage(dis.readUTF());
-					// if(isStop) return;
 				}
 			} catch (IOException ioe) {
 				// TODO: handle exception
@@ -225,15 +241,12 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				}
 				while (dos != null) {					 
 					if (!isSenderSuspend) {
-						System.out.println("Send : " + message);
-//						dos.writeUTF(idpwMessage);
-//						isSuspend = true;
+//						System.out.println("Send : " + message);
 						dos.writeUTF(message);						
 						suspendSend();
 					} else {
 						repaint();
 					}
-					// if(isStop) return;
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -14,8 +14,6 @@ public class UserInfoDAO {
 	private Connection dbConnection;
 	private PreparedStatement pStatement;
 
-	HashMap<Integer, UserInfoVO> alluserList = new HashMap<Integer, UserInfoVO>();
-
 	// 드라이버 등록
 	public UserInfoDAO() {
 		try {
@@ -106,13 +104,6 @@ public class UserInfoDAO {
 		}
 		return allUser;
 	}
-
-	public Integer getMaxNumber() {
-		int max = 0;
-		if (alluserList.size() > max)
-			max = alluserList.size();
-		return new Integer(max);
-	}
 	
 	//로그인한 유저의 세부 정보를 얻는다
 	public UserInfoVO getUserInfo(String id){
@@ -139,9 +130,33 @@ public class UserInfoDAO {
 		return uiVO;
 	}
 	
+	//가입전 중복ID검사
 	public boolean isExist(String ident, String msg){
 		boolean bCheck = false;
-		
+		try {			
+			String sql;
+			connectDB();			
+			if(ident.equals("id")){
+				sql = "select count(*) from customer where id like ?";	
+			}else{
+				sql = "select count(*) from customer where nickname like ?";
+			}			
+			pStatement = dbConnection.prepareStatement(sql);
+//			pStatement.setString(1, ident);
+			pStatement.setString(1, msg);			
+			ResultSet rs = pStatement.executeQuery();
+			rs.next();
+			int count = rs.getInt(1);
+			if(count == 0){
+				//중복되는ID나 닉네임이 없을 경우
+				bCheck = true;
+			}else {
+				//중복이 발견된 경우
+				bCheck = false;
+			}
+		} catch (SQLException e) {
+			// TODO: handle exception
+		}		
 		return bCheck;
 	}
 

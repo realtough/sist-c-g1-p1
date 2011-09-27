@@ -24,7 +24,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	// 로그인과 가입 폼 다이얼로그 선언
 	private LobbyLogin lLogin;
-	private LobbyRegister lRegister;
+//	private LobbyRegister lRegister;
 
 	// 보더효과와 카드레이아웃 설정
 	private Border bdMainEdge = BorderFactory
@@ -141,7 +141,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		setBounds(framePosition.width, framePosition.height, frameSize.width,
 				frameSize.height);
 		lLogin = new LobbyLogin(this);
-		lRegister = new LobbyRegister(lLogin);
+//		lRegister = new LobbyRegister(lLogin);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setVisible(true);

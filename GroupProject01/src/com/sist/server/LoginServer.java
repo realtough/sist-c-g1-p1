@@ -80,25 +80,25 @@ public class LoginServer extends Thread implements G1Server {
 				case 11:
 					// 아이디와 패스워드 일치 (로그인)
 					// sendTo(유저, 메시지)
-					sendTo(name, "11#" + uiManager.getUserInfo(temp[1]));
+					sendTo("login", name, "11#" + uiManager.getUserInfo(temp[1]));
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name
 							+ " 로그인 성공");
 					isOperatorOn = false;
 					break;
 				case 12:
 					// 아이디 일치, 패스워드 틀릴때 (경고창 띄운후 재시도)
-					sendTo(name, "12");
+					sendTo("login", name, "12");
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name
 							+ " 로그인 실패 (비밀번호 틀림)");
 					break;
 				case 22:
 					// 아이디 없을때 (경고창 띄운후 재시도)
-					sendTo(name, "22");
+					sendTo("login", name, "22");
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name
 							+ " 로그인 실패 (아이디 틀림)");
 					break;
 				default:
-					sendTo(name, "33");
+					sendTo("login", name, "33");
 					g1Server.appendServerLog(Tools.LOGIN_SERVER_HEADER + name
 							+ " 로그인 실패 (비정상 오류)");
 					break;
@@ -107,13 +107,20 @@ public class LoginServer extends Thread implements G1Server {
 				// DAO를 불러와 가입절차 처리
 				UserInfoVO uiVO = Tools.stringToUserInfo(temp[1]);
 				uiManager.insertUser(uiVO);
+			} else if (temp[0].equals("/check")) {
+				// DAO를 불러와 가입절차 처리								
+				if(uiManager.isExist(temp[1], temp[2])){
+					sendTo("regist", name, "check#11");
+				}else{
+					sendTo("regist", name, "check#22");
+				}
 			}
 		}
 
-		private void sendTo(String to, String msg) {
+		private void sendTo(String from, String to, String msg) {
 			try {
 				DataOutputStream dos2 = (DataOutputStream) tempUserList.get(to);
-				dos2.writeUTF("[login]#" + msg);
+				dos2.writeUTF("["+from+"]#" + msg);
 				g1Server.appendServerLog("[" + "로그인서버" + "]#" + msg);
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER

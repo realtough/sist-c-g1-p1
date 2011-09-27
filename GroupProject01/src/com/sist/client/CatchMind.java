@@ -2,7 +2,6 @@ package com.sist.client;
 import javax.security.auth.callback.LanguageCallback;
 import javax.swing.*;
 
-import com.sist.common.G1Server;
 
 import java.awt.*;
 import java.awt.event.*;

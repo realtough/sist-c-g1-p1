@@ -3,9 +3,12 @@ package com.sist.client;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import javax.swing.*;
 import com.sist.common.*;
+import com.sun.org.apache.bcel.internal.generic.LLOAD;
 
 //로그인 서버와 통신 입력받은 유저정보를 전달
 public class LobbyRegister extends JDialog implements ActionListener {
@@ -39,9 +42,9 @@ public class LobbyRegister extends JDialog implements ActionListener {
 	private JButton jbCheckID = new JButton("중복확인");
 	private JButton jbCheckNick = new JButton("중복확인");
 	private JPanel jpBody = new JPanel();
-	private JPanel jpBottom = new JPanel();
+//	private JPanel jpBottom = new JPanel();
 	private JPanel jpSex = new JPanel();
-
+	
 	public LobbyRegister(LobbyLogin lbLogin) {
 		super(lbLogin, "신규 가입", ModalityType.APPLICATION_MODAL);
 		this.lbLogin = lbLogin;
@@ -85,6 +88,14 @@ public class LobbyRegister extends JDialog implements ActionListener {
 		setTitle("신규가입");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = new Date();
+		sdf.format(date);
+		
+		sdModel.setValue(new Date());
+		sdModel.setStart(new Date());
+		sdModel.setEnd(new Date());
+		
 		jbRegister.addActionListener(this);
 		jbCancel.addActionListener(this);
 		jbCheckID.addActionListener(this);
@@ -92,8 +103,10 @@ public class LobbyRegister extends JDialog implements ActionListener {
 
 		setBounds(dPosition.width, dPosition.height, dSize.width, dSize.height);
 		setResizable(false);
-	}
-
+		
+		clearAllForm();
+	}	
+	
 	public void registUser() {
 		UserInfoVO uiVO = new UserInfoVO();
 
@@ -150,6 +163,67 @@ public class LobbyRegister extends JDialog implements ActionListener {
 		dispose();
 	}
 
+	public void clearIDForm(){
+		jtfID.setText("");
+	}
+	
+	public void clearNickForm(){
+		jtfNickName.setText("");
+	}
+	
+	public void clearAllForm(){
+		clearIDForm();
+		jpfPW.setText("");
+		jtfName.setText("");
+		clearNickForm();
+		jrMan.setSelected(false);
+		jrWoman.setSelected(false);
+		clearBirthForm();
+	}	
+	
+	private void clearBirthForm(){
+		Calendar cal = Calendar.getInstance();
+		Date endDate = cal.getTime();
+		cal.add(Calendar.YEAR, -80);
+		Date startDate = cal.getTime();
+		cal.add(Calendar.YEAR, 60);
+		Date nowDate = cal.getTime();
+		sdModel.setCalendarField(Calendar.YEAR);
+		sdModel.setStart(startDate);
+		sdModel.setEnd(endDate);
+		sdModel.setValue(nowDate);
+		lockInput();
+	}
+	
+	public void lockInput(){
+		jpfPW.setEnabled(false);
+		jtfName.setEnabled(false);
+		jrMan.setEnabled(false);
+		jrWoman.setEnabled(false);
+		jtfNickName.setEnabled(false);
+		jsBirthDate.setEnabled(false);
+		jbRegister.setEnabled(false);
+		jbCheckNick.setEnabled(false);
+	}
+	
+	public void unlockInput(){
+		jpfPW.setEnabled(true);
+		jtfName.setEnabled(true);
+		jrMan.setEnabled(true);
+		jrWoman.setEnabled(true);
+		jtfNickName.setEnabled(true);
+		jsBirthDate.setEnabled(true);
+		jbRegister.setEnabled(true);
+		jbCheckNick.setEnabled(true);
+	}
+	
+	private void checkExist(String ident, String msg) {
+		if(msg.length()==0){
+			JOptionPane.showMessageDialog(this, ident.toUpperCase() + " 를 입력하세요");
+		}
+		lbLogin.sendMessage("/check" + " " + ident + " " + msg);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object ob = e.getSource();
@@ -160,9 +234,9 @@ public class LobbyRegister extends JDialog implements ActionListener {
 			lbLogin.setVisible(true);
 			dispose();
 		} else if (ob == jbCheckID) {
-			lbLogin.sendMessage("/check c_name " + "");
+			checkExist("id", jtfID.getText().trim());
 		} else if (ob == jbCheckNick) {
-			lbLogin.sendMessage("/check nname " + "");
+			checkExist("nickname", jtfNickName.getText().trim());
 		}
 	}
 

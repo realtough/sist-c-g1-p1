@@ -73,6 +73,7 @@ public class ServerForm extends JFrame implements ActionListener {
 		jmClose.setEnabled(false);
 		jmSendUser.setEnabled(false);
 		jtfServerInput.setEnabled(false);
+		jmUser.setEnabled(false);
 
 		// 프레임 설정
 		setJMenuBar(jmb);

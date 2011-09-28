@@ -92,8 +92,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		jtUserList = new JTable(dtModel);
 
 		// Test//
-		jpRightTab.setBackground(Color.RED);
-		jsBar = jsChatScreenPane.getVerticalScrollBar();
+		jpRightTab.setBackground(Color.LIGHT_GRAY);		
 		// Test//
 
 		// GameSelect패널 설정
@@ -112,6 +111,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		Tools.insert(jpChat, jtfChatInput, 0, 1, 1, 1, 1.0, 0.1);
 		jpChatButtonPanel.add(jbChatMaximize);
 		jpChatButtonPanel.add(jbChatMinimize);
+		jsBar = jsChatScreenPane.getVerticalScrollBar();
 		Tools.insert(jpChat, jpChatButtonPanel, 1, 0, 1, 2, 0.0, 0.5);
 
 		// 유저 정보창 배치
@@ -123,8 +123,8 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 		// 패널 배치 (메인화면, 우측 정보창, 채팅창)
 		jpMain.setLayout(null);
 		jpGameMain.setLayout(card);
-		jpGameMain.add("GAMESELECT", jpGameSelect);
 		jpGameMain.add("CHATSCREEN", jsChatScreenPane);
+		jpGameMain.add("GAMESELECT", jpGameSelect);		
 		jpGameMain.setBounds(5, 5, gameMainSize.width, gameMainSize.height);
 		jpMain.add(jpGameMain);
 		jpChat.setBounds(5, 605, 800, 100);
@@ -152,10 +152,10 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 	public void clientStart(String userName) {
 		try {
-			myVO = Tools.stringToUserInfo(userName);
+			myVO = Tools.stringToUserInfo(userName);			
 			Socket socket = new Socket(Tools.serverIp, Tools.MAIN_SERVER_PORT);
 			ClientReceiver crThread = new ClientReceiver(socket);
-			csThread = new ClientSender(myVO.getNickname(), socket);
+			csThread = new ClientSender(myVO.getNickname(), socket);			
 			crThread.start();
 			csThread.start();
 		} catch (UnknownHostException e) {
@@ -220,7 +220,7 @@ public class LobbyMain extends JFrame implements ActionListener, G1Client {
 
 		public void run() {
 			try {
-				while (bfReader != null) {
+				while (bfReader != null) {				
 					classfyMessage(bfReader.readLine());
 				}
 			} catch (IOException ioe) {

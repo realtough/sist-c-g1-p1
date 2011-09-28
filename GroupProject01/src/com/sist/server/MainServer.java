@@ -78,9 +78,10 @@ public class MainServer extends Thread implements G1Server {
 					BufferedWriter bwf = clients.get(from);
 					message = "[" + to + "] 님에게 귓속말 : " + msg + "\n";
 					bwf.write(message);
-					if(bw != null) bwf.flush();
+					bwf.flush();
+					message = "[" + from + "] 님의 귓속말 : " + msg + "\n";
 				} else {	
-					message = "[" + from + "] 님의 귓속말 : " + msg + "\n";					
+					message = "[" + from + "] " + msg + "\n";					
 				}
 				bw.write(message);
 				if(bw != null) bw.flush();
@@ -134,10 +135,10 @@ public class MainServer extends Thread implements G1Server {
 				clients.put(name, bfWriter);				
 				bfWriter.write("접속하신것을 환영합니다\n");
 				bfWriter.flush();
-				sendToAll("서버", name + " 님이 입장 하셨습니다");
+				sendToAll("server", name + " 님이 입장 하셨습니다");
 				sendUserStatus();
 				// 반복하며 입력받은 메시지를 분류 
-				while (bfReader != null){
+				while (bfReader != null){					
 					classfyMessage(name, bfReader.readLine());
 				}
 			} catch (IOException e) {

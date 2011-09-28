@@ -2,12 +2,8 @@ package com.sist.server;
 
 import java.io.*;
 import java.net.*;
-import java.sql.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-
 import com.sist.common.*;
-import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
 
 //최초 입력된 아이디와 패스워드를 기반으로 UIM을 이용 유저정보 조회
 //정보 인증시 닉네임을 받아 LobbyLogin에 전달
@@ -119,8 +115,10 @@ public class LoginServer extends Thread implements G1Server {
 		}
 
 		private void sendTo(String from, String to, String msg) {
+			g1Server.appendServerLog(from +" " + to+" " + msg);
 			try {
 				DataOutputStream dos2 = tempUserList.get(to);
+				if(dos2 != null)
 				dos2.writeUTF("["+from+"]#" + msg);				
 			} catch (IOException e) {
 				g1Server.appendServerLog(Tools.MAIN_SERVER_HEADER
@@ -139,7 +137,7 @@ public class LoginServer extends Thread implements G1Server {
 				while (dis != null) {
 					if (!isOperatorOn) {
 						break;
-					}
+					}					
 					classfyMessage(name, dis.readUTF());
 				}
 			} catch (Exception e) {

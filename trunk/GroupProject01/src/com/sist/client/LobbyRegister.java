@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.swing.*;
 import com.sist.common.*;
-import com.sun.org.apache.bcel.internal.generic.LLOAD;
 
 //로그인 서버와 통신 입력받은 유저정보를 전달
 public class LobbyRegister extends JDialog implements ActionListener {

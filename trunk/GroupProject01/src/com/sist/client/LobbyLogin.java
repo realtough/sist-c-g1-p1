@@ -111,7 +111,8 @@ public class LobbyLogin extends JDialog implements ActionListener {
 		Object ob = e.getSource();
 		if (ob == jbAccept) {
 			userLogin();
-		} else if (ob == jbCancel) {			
+		} else if (ob == jbCancel) {	
+			lobby.clientStart("Bypass Login");
 			isStop = true;
 			setVisible(false);
 			dispose();
@@ -136,7 +137,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 	}
 	
 	private void classfyMessage(String msg) {
-//		System.out.println("Receive : " + msg);
+		System.out.println("Receive : " + msg);
 		String msgtemp[] = msg.split("#", 3);
 		if (msgtemp[0].equals("[login]")) {
 			switch (Integer.parseInt(msgtemp[1])) {
@@ -190,7 +191,7 @@ public class LobbyLogin extends JDialog implements ActionListener {
 
 		public void run() {
 			try {
-				while (dis != null) {
+				while (dis != null) {					
 					classfyMessage(dis.readUTF());
 				}
 			} catch (IOException ioe) {
@@ -237,7 +238,8 @@ public class LobbyLogin extends JDialog implements ActionListener {
 				}
 				while (dos != null) {					 
 					if (!isSenderSuspend) {
-//						System.out.println("Send : " + message);
+						System.out.println("Send : " + message);
+						
 						dos.writeUTF(message);						
 						suspendSend();
 					} else {

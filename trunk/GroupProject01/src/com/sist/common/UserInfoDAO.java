@@ -1,7 +1,6 @@
 package com.sist.common;
 
 import java.util.*;
-import java.util.Date;
 import java.sql.*;
 
 //DB연동 처리 클래스

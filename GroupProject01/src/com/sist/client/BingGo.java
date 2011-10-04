@@ -87,7 +87,8 @@ public class BingGo extends JFrame implements ActionListener{
 		this.add("South",p5);
 		
 		
-	
+		
+		
 		this.setBounds(300, 300, 600, 430);
 		this.setVisible(true);
 		
